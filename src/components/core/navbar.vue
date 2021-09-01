@@ -1,0 +1,67 @@
+<template>
+  <div>
+    <v-app-bar  dense v-if="isLoggedin">
+      <v-app-bar-nav-icon></v-app-bar-nav-icon>
+
+      <v-toolbar-title>Yönetime Hoşgeldiniz,</v-toolbar-title>
+
+      <v-spacer></v-spacer>
+      <div class="text-center">
+        <v-menu offset-y rounded="lg">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon v-bind="attrs" v-on="on">
+              <v-icon>mdi-dots-vertical</v-icon>
+            </v-btn>
+          </template>
+
+          <v-list>
+            <v-list-item @click="doLogout()">
+              <v-list-item-title>Çıkış</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </div>
+    </v-app-bar>
+
+    <v-app-bar   v-else dark src="https://picsum.photos/1920/1080?random">
+      <template v-slot:img="{ props }">
+        <v-img
+          v-bind="props"
+          gradient="to top right, rgba(100,115,201,.7), rgba(25,32,72,.7)"
+        ></v-img>
+      </template>
+
+      <v-app-bar-nav-icon></v-app-bar-nav-icon>
+
+      <v-app-bar-title>DAD Duyuru Panosu</v-app-bar-title>
+
+      <v-spacer></v-spacer>
+
+      <v-btn text @click="goToLogin()">
+        <v-icon left>mdi-account</v-icon>Giriş
+      </v-btn>
+    </v-app-bar>
+  </div>
+</template>
+
+<script>
+import { mapMutations } from "vuex"
+import { mapGetters } from "vuex"
+export default {
+  name: "navBar",
+  computed: {
+    ...mapGetters(["isLoggedin", "user/userData"])
+  },
+  methods: {
+    ...mapMutations("user", ["logout"]),
+    goToLogin() {
+      this.$router.push("/login")
+    },
+    doLogout() {
+      this.logout()
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped></style>
