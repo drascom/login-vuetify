@@ -25,8 +25,12 @@ export default {
                 return err.response.data.error
             })
     },
-    async deleteItem(payload) {
-        const params = { filter: { _id: payload.data } }
+    async delete(payload) {
+        console.log("api delete payload", payload)
+        const params = {
+            name: payload.child,
+            filter: { _id: payload.data }
+        }
         return api
             .post(`${END_POINT}/remove/${payload.child}`, params)
             .then((res) => {

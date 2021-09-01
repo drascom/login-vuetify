@@ -6,7 +6,7 @@
       :readonly="active[0] == index"
     >
       <v-expansion-panel-header>
-        <v-row no-gutters style="width: 100%">
+        <v-row no-gutters style="width: 100%" class="font-weight-bold">
           <v-col cols="6">
             {{ post.title }}
           </v-col>
@@ -15,8 +15,10 @@
           </v-col>
         </v-row>
       </v-expansion-panel-header>
-      <v-expansion-panel-content>
-        {{ post.content }}
+      <v-expansion-panel-content
+        v-html="post.content"
+        class="pl-4 d-flex flex-column"
+      >
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>

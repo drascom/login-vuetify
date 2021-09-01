@@ -1,18 +1,19 @@
 <template>
-  <div v-if="duyurular">
-    <accordion-list :posts="duyurular" />
-  </div>
-  <div v-else>fdsfdsfsdf</div>
+  <v-card flat tile v-if="duyurular" :width="$vuetify.breakpoint.xs ? '100%' : '80%'" class="mx-auto">
+    <card-list :posts="duyurular" />
+  </v-card>
+  <div v-else>Server ile bağlantı kurulamadı.</div>
 </template>
 
 <script>
-import accordionList from "@/components/ui/accordionList"
+import cardList from "@/components/ui/cardList"
 import { mapActions } from "vuex"
 export default {
   name: "Home",
   data: () => ({}),
   components: {
-    accordionList
+    // eslint-disable-next-line vue/no-unused-components
+    cardList
   },
   methods: {
     ...mapActions(["getAllItems"])

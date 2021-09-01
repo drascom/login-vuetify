@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-app-bar  dense v-if="isLoggedin">
+    <v-app-bar dense v-if="isLoggedin">
       <v-app-bar-nav-icon></v-app-bar-nav-icon>
 
       <v-toolbar-title>Yönetime Hoşgeldiniz,</v-toolbar-title>
@@ -15,6 +15,9 @@
           </template>
 
           <v-list>
+            <v-list-item @click="$router.push('/dashboard')">
+              <v-list-item-title>Anasayfa</v-list-item-title>
+            </v-list-item>
             <v-list-item @click="doLogout()">
               <v-list-item-title>Çıkış</v-list-item-title>
             </v-list-item>
@@ -23,7 +26,7 @@
       </div>
     </v-app-bar>
 
-    <v-app-bar   v-else dark src="https://picsum.photos/1920/1080?random">
+    <v-app-bar v-else dark src="https://picsum.photos/1920/1080?random">
       <template v-slot:img="{ props }">
         <v-img
           v-bind="props"
@@ -36,7 +39,6 @@
       <v-app-bar-title>DAD Duyuru Panosu</v-app-bar-title>
 
       <v-spacer></v-spacer>
-
       <v-btn text @click="goToLogin()">
         <v-icon left>mdi-account</v-icon>Giriş
       </v-btn>
@@ -59,6 +61,7 @@ export default {
     },
     doLogout() {
       this.logout()
+      this.$router.push("/")
     }
   }
 }

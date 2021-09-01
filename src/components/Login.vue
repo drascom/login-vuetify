@@ -50,13 +50,13 @@
                   </div>
                 </v-col>
                 <v-col cols="12" md="4" class="teal accent-3">
-                  <v-card-text class="white--text mt-12">
+                  <v-card-text class="white--text mt-4">
                     <h1 class="text-center display-1">Merhaba Arkadaşım !</h1>
                     <h5 class="text-center">
                       Bizimle bu yolda olmak için lütfen bilgilerini gir.
                     </h5>
                   </v-card-text>
-                  <div class="text-center">
+                  <div class="text-center mb-4">
                     <v-btn rounded outlined dark @click="step++">ÜYE OL</v-btn>
                   </div>
                 </v-col>
@@ -84,14 +84,23 @@
                       Hesap oluştur.
                     </h1>
 
-                    <h4 class="text-center mt-4">
-                      Üyelik için Email adresini gir.
-                    </h4>
-                    <v-form>
+                    <v-alert
+                      v-if="error"
+                      border="left"
+                      colored-border
+                      type="error"
+                      class="elevation-6 my-4"
+                    >
+                      {{ error }}
+                    </v-alert>
+                    <v-form v-model="isFormValid">
                       <v-text-field
                         label="Ad Soyad"
                         name="name"
                         prepend-icon="person"
+                        placeholder=""
+                        :rules="inputRules"
+                        autocomplete="new-password"
                         type="text"
                         color="teal accent-3"
                         v-model="registerData.name"
@@ -99,6 +108,8 @@
                       <v-text-field
                         label="E-mail"
                         name="Email"
+                        :rules="emailRules"
+                        autocomplete="new-password"
                         prepend-icon="email"
                         type="text"
                         color="teal accent-3"
@@ -109,6 +120,8 @@
                         id="password"
                         label="Şifre"
                         name="password"
+                        :rules="inputRules"
+                        autocomplete="off"
                         prepend-icon="lock"
                         color="teal accent-3"
                         v-model="registerData.password"
@@ -120,11 +133,13 @@
                   </v-card-text>
                   <div class="text-center mt-n5 mb-3">
                     <v-btn
+                      :disabled="!isFormValid"
                       @click="handleSingUp()"
                       rounded
                       color="teal accent-3"
-                      dark
-                      >Üye Ol</v-btn
+                      :dark="isFormValid"
+                    >
+                      Üye Ol</v-btn
                     >
                   </div>
                 </v-col>
@@ -144,12 +159,25 @@ export default {
   name: "Login",
 
   data: () => ({
+    error: "",
     step: 1,
+    isFormValid: false,
     showPass: true,
     loginData: {
       user: "admin",
       password: "admin"
     },
+    inputRules: [
+      (v) => !!v || "Bu alan gerekli",
+      (v) => (v && v.length >= 6) || "En Az 6 Karakter Giriniz"
+    ],
+    emailRules: [
+      (v) => !!v || "Bu alan gerekli",
+      (v) =>
+        !v ||
+        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) ||
+        "E-mail geçersiz"
+    ],
     registerData: {
       name: "",
       password: "",
@@ -157,12 +185,19 @@ export default {
     }
   }),
   computed: {
-    ...mapGetters(["isLoggedin","isLoginFailure"]),
+    ...mapGetters(["isLoggedin", "isLoginFailure"])
   },
   watch: {
     isLoggedin(newValue) {
-      if(newValue){
-        this.$router.push("/")
+      if (newValue) {
+        this.$router.push("/dashboard")
+      }
+    },
+    error(newValue) {
+      if (newValue) {
+        setTimeout(() => {
+          this.error = false
+        }, 2000)
       }
     }
   },
@@ -171,14 +206,18 @@ export default {
     handleSingIn() {
       this.login(this.loginData)
     },
-    handleSingUp() {
-      this.register({
+    async handleSingUp() {
+      let result = await this.register({
         name: this.registerData.name,
-        user: "apiusertest",
+        user: this.registerData.email,
         password: this.registerData.password,
         email: this.registerData.email,
         api_key: 1
       })
+      if (result && result.error) {
+        this.error = result.error
+      }
+      console.log("component result ", result)
     }
   },
   mounted() {}

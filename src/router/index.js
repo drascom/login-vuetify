@@ -39,9 +39,11 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
     const token = window.localStorage.getItem("api_key")
+    const user = window.localStorage.getItem("user")
     const lastPage = window.localStorage.getItem("last-page")
     const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
     store.state.user.isLoggedin = token ? true : false
+    store.state.user.userData = user ? user : false
     if (requiresAuth) {
         if (to.fullPath === "/login") {
             if (token) {

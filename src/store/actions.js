@@ -28,10 +28,8 @@ export default {
         return apiModule[payload.parent]
             .save(payload)
             .then((res) => {
-                dispatch("getAllItems", {
-                    parent: payload.parent,
-                    child: payload.child
-                })
+                dispatch("getAllItems", payload)
+                console.log("yeniden istendi")
                 return res
             })
             .catch((error) => {
@@ -56,19 +54,14 @@ export default {
             })
     },
     delete({ commit, dispatch }, payload) {
-        return apiModule[payload.parent]
-            .deleteItem({ name: payload.child, data: payload.data })
-            .then((res) => {
-                dispatch("getAllItems", {
-                    parent: payload.parent,
-                    child: payload.child
-                })
-
-                if (res.data.success) {
-                    commit("system/SET_DELETED_STATUS", true, { root: true })
-                }
-                return res
-            })
+        return apiModule[payload.parent].delete(payload).then((res) => {
+            dispatch("getAllItems", payload)
+            console.log("yeniden istendi")
+            if (res.data.success) {
+                commit("system/SET_DELETED_STATUS", true, { root: true })
+            }
+            return res
+        })
     },
     deleteAll({ dispatch }, payload) {
         Promise.all(
