@@ -16,7 +16,10 @@
 
           <v-list>
             <v-list-item @click="$router.push('/dashboard')">
-              <v-list-item-title>Anasayfa</v-list-item-title>
+              <v-list-item-title> Anasayfa </v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="$router.push('/duyurular')">
+              <v-list-item-title> Duyurular </v-list-item-title>
             </v-list-item>
             <v-list-item @click="doLogout()">
               <v-list-item-title>Çıkış</v-list-item-title>
@@ -33,8 +36,6 @@
           gradient="to top right, rgba(100,115,201,.7), rgba(25,32,72,.7)"
         ></v-img>
       </template>
-
-      <v-app-bar-nav-icon></v-app-bar-nav-icon>
 
       <v-app-bar-title>DAD Duyuru Panosu</v-app-bar-title>
 

@@ -1,6 +1,8 @@
 const state = () => {
     return {
-        duyurular: false
+        duyurular: false,
+        users: false,
+        members: false
     }
 }
 export default {

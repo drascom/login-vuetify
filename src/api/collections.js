@@ -36,5 +36,5 @@ export default {
             .then((res) => {
                 return res
             })
-    }
+    },
 }

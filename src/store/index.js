@@ -18,7 +18,7 @@ const getters = {
     },
     collections: (state) => {
         return state.collections
-    },
+    }
 }
 const mutations = {
     SET_ITEMS(state, payload) {

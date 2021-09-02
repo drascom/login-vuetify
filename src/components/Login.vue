@@ -154,7 +154,7 @@
 
 <script>
 import { mapActions } from "vuex"
-import { mapGetters } from "vuex"
+// import { mapGetters } from "vuex"
 export default {
   name: "Login",
 
@@ -164,8 +164,8 @@ export default {
     isFormValid: false,
     showPass: true,
     loginData: {
-      user: "admin",
-      password: "admin"
+      user: "a@b.com",
+      password: "111111"
     },
     inputRules: [
       (v) => !!v || "Bu alan gerekli",
@@ -185,7 +185,10 @@ export default {
     }
   }),
   computed: {
-    ...mapGetters(["isLoggedin", "isLoginFailure"])
+    isLoggedin() {
+      return this.$store.state.user.isLoggedin
+    }
+    // ...mapGetters(["isLoggedin", "isLoginFailure"])
   },
   watch: {
     isLoggedin(newValue) {
@@ -202,20 +205,24 @@ export default {
     }
   },
   methods: {
-    ...mapActions("user", ["login", "register"]),
+    ...mapActions(["login", "register"]),
     handleSingIn() {
-      this.login(this.loginData)
+      this.login({
+        parent: "collections",
+        child: "members",
+        data: {
+          populate: 1,
+          filter: {
+            email: this.loginData.email,
+            password: this.loginData.password.trim()
+          }
+        }
+      })
     },
     async handleSingUp() {
-      let result = await this.register({
-        name: this.registerData.name,
-        user: this.registerData.email,
-        password: this.registerData.password,
-        email: this.registerData.email,
-        api_key: 1
-      })
-      if (result && result.error) {
-        this.error = result.error
+      let result = await this.register(this.registerData)
+      if (!result.status) {
+        this.error = result.error || result
       }
       console.log("component result ", result)
     }

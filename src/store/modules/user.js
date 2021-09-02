@@ -38,20 +38,6 @@ const actions = {
                 console.log("register store error", error.response)
                 return error.response.data
             })
-    },
-    getOneItem({ commit }, payload) {
-        return new Promise((resolve, reject) => {
-            api
-                .getOne(payload)
-                .then((res) => {
-                    console.log(res)
-                    commit("SET_USER", res.data)
-                    resolve()
-                })
-                .catch((error) => {
-                    console.log(error)
-                })
-        })
     }
 }
 const mutations = {
@@ -59,7 +45,7 @@ const mutations = {
         state.newUser = payload
     },
     SET_USER(state, payload) {
-        if (payload.active) {
+        if (payload.published) {
             state.isLoggedin = true
         }
         state.userData = payload

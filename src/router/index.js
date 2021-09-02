@@ -9,25 +9,58 @@ Vue.use(VueRouter)
 /* eslint-disable no-unused-vars */
 const routes = [{
         path: "/",
-        name: "home",
+        name: "Home",
         component: Home
     },
     {
         path: "/login",
-        name: "login",
+        name: "Login",
         component: Login
     },
     {
         path: "/dashboard",
-        name: "dashboard",
+        name: "Dashboard",
         meta: {
             requiresAuth: true
         },
-        // route level code-splitting
-        // this generates a separate chunk (about.[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
         component: () =>
             import ( /* webpackChunkName: "Dashboard" */ "../views/Dashboard.vue")
+    },
+    {
+        path: "/duyurular",
+        name: "Duyurular",
+        meta: {
+            requiresAuth: true
+        },
+        component: () =>
+            import ( /* webpackChunkName: "Duyurular" */ "../views/Duyurular.vue")
+    },
+    {
+        path: "/teams",
+        name: "Teams",
+        meta: {
+            requiresAuth: true
+        },
+        component: () =>
+            import ( /* webpackChunkName: "Duyurular" */ "../views/Teams.vue")
+    },
+    {
+        path: "/members",
+        name: "Members",
+        meta: {
+            requiresAuth: true
+        },
+        component: () =>
+            import ( /* webpackChunkName: "Duyurular" */ "../views/Members.vue")
+    },
+    {
+        path: "/cases",
+        name: "Cases",
+        meta: {
+            requiresAuth: true
+        },
+        component: () =>
+            import ( /* webpackChunkName: "Duyurular" */ "../views/Cases.vue")
     }
 ]
 
