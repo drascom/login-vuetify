@@ -1,5 +1,5 @@
 <template>
-  <v-container class="my-2">
+  <v-container class="mb-2" >
     <v-slide-y-transition hide-on-leave>
       <v-card v-if="dialog">
         <v-card-title>
@@ -36,12 +36,6 @@
               v-model="form.email"
               prepend-inner-icon="email"
             ></v-text-field>
-            <v-text-field
-              outlined
-              placeholder="Şifre"
-              v-model="form.password"
-              prepend-inner-icon="lock"
-            ></v-text-field>
             <tags v-model="form.teams"></tags>
             <v-row class="justify-end ma-2">
               <v-btn
@@ -58,53 +52,67 @@
       </v-card>
     </v-slide-y-transition>
 
-    <v-layout row justify-center v-if="items.length < 1">
-      <v-layout column align-center>
-        <span
-          :class="{
-            'grey--text display-3': $vuetify.breakpoint.smAndUp,
-            'display-1 grey--text': $vuetify.breakpoint.xsOnly
-          }"
-          >Hiç Üye bulunamadı 😔</span
-        >
-        <v-btn flat color="primary" class="display-1" @click="dialog = !dialog"
-          >Yeni Üye Ekle</v-btn
-        >
-      </v-layout>
-    </v-layout>
     <template v-if="!dialog">
-      <v-toolbar>
-        <h2 class="subheading grey--text">Üyeler</h2>
+      <v-toolbar fixed>
+        <v-toolbar-title class="grey--text font-weight-bold">
+          Üyeler
+        </v-toolbar-title>
+
         <v-spacer></v-spacer>
-        <v-btn color="red" class="elevation-6" dark @click="dialog = !dialog">
-          <v-icon left>mdi-plus</v-icon> Ekle
+        <v-btn
+          :icon="$vuetify.breakpoint.xs"
+          color="red"
+          class="mx-2"
+          dark
+          @click="dialog = !dialog"
+        >
+          <v-icon :left="$vuetify.breakpoint.smAndUp"> mdi-plus </v-icon>
+          {{ $vuetify.breakpoint.smAndUp ? "Ekle" : "" }}
         </v-btn>
       </v-toolbar>
+      <v-text-field
+        type="text"
+        dense
+        filled
+        placeholder="Arama"
+        v-model="search"
+        hide-details
+        prepend-inner-icon="mdi-magnify"
+        single-line
+      ></v-text-field>
+      <v-layout row justify-center v-if="items.length < 1" class="pt-12">
+        <v-layout column align-center>
+          <span
+            :class="{
+              'grey--text text-h4': $vuetify.breakpoint.smAndUp,
+              'grey--text text-h5 ': $vuetify.breakpoint.xsOnly
+            }"
+          >
+            Hiç Üye bulunamadı 😔
+          </span>
+        </v-layout>
+      </v-layout>
       <v-list>
-        <v-card
-          class="ml-4 my-4 py-2"
-          v-for="(item, index) in items"
-          :key="index"
-        >
-          <v-list-item :key="index" class="project" two-line>
-            <v-list-item-icon>
-              <v-icon>
-                drag_indicator
-              </v-icon>
-            </v-list-item-icon>
+        <v-card class="my-4" v-for="(item, index) in filteredList" :key="index">
+          <v-list-item
+            :key="index"
+            class="project"
+            :class="$vuetify.breakpoint.xs ? 'px-1' : ''"
+          >
             <v-list-item-content>
-              <v-list-item-title
-                @click="editPost(item)"
-                class="d-flex justify-space-between"
-              >
-                <span> {{ item.name }}</span>
-                <span
-                  ><v-list-item-subtitle @click="editPost(item)">
-                    <v-icon small left>mdi-phone</v-icon
-                    >{{ item.phone || " - Yok - " }}
-                  </v-list-item-subtitle></span
-                >
-              </v-list-item-title>
+              <v-layout row wrap class="mt-1 ml-1">
+                <v-flex xs12 sm6>
+                  <v-icon>
+                    drag_indicator
+                  </v-icon>
+                  {{ item.name }}
+                </v-flex>
+                <v-flex xs12 sm6>
+                  <v-icon small left>mdi-phone</v-icon
+                  >{{ item.phone || " - Yok - " }}
+                </v-flex>
+              </v-layout>
+
               <v-list-item-subtitle @click="editPost(item)">
                 <template v-for="(team, i) in item.teams">
                   <v-chip small class="mt-4 mr-2" :key="i">
@@ -113,7 +121,6 @@
                 </template>
               </v-list-item-subtitle>
             </v-list-item-content>
-
             <v-list-item-action class="">
               <v-list-item-action-text>
                 {{ item._created | moment(" Do, MMMM YYYY") }}
@@ -149,13 +156,14 @@ export default {
   },
   data() {
     return {
+      search: "",
       editMode: false,
       dialog: false,
       isLoading: false,
       form: {
         name: "",
         email: "",
-        password: ""
+        password: "123456"
       }
     }
   },
@@ -175,7 +183,8 @@ export default {
         name: "",
         phone: "",
         email: "",
-        teams: ""
+        teams: "",
+        password: "123456"
       }
     },
     editPost(item) {
@@ -196,18 +205,26 @@ export default {
       }
     },
     async deleteItem(payload) {
-      this.isLoading = true
-      console.log(payload)
-      let result = await this.delete({
-        parent: "collections",
-        child: "members",
-        data: payload._id
+      const res = await this.$confirm("Gerçekten Silmek İstiyor musunuz ?", {
+        title: "Uyarı",
+        buttonTrueText: "Evet",
+        buttonFalseText: "Hayır",
+        color: "red"
       })
-      console.log("remove result", result)
-      if (result && result.data.success) {
-        console.log("remove success")
-        this.isLoading = false
-        this.closeForm()
+      if (res) {
+        this.isLoading = true
+        console.log(payload)
+        let result = await this.delete({
+          parent: "collections",
+          child: "members",
+          data: payload._id
+        })
+        console.log("remove result", result)
+        if (result && result.data.success) {
+          console.log("remove success")
+          this.isLoading = false
+          this.closeForm()
+        }
       }
     }
   },
@@ -219,6 +236,11 @@ export default {
   computed: {
     items() {
       return this.$store.getters.collections.members
+    },
+    filteredList() {
+      return this.$store.getters.collections.members.filter((item) => {
+        return item.name.toLowerCase().includes(this.search.toLowerCase())
+      })
     }
   },
   mounted() {
@@ -231,25 +253,5 @@ export default {
 .project {
   border-left: 4px solid #f83e70;
 }
-.theme--light.v-btn:not(.v-btn--icon).complete {
-  background-color: #3cd1c2;
-}
-.theme--light.v-btn:not(.v-btn--icon).ongoing {
-  background-color: #ffaa2c;
-}
-.theme--light.v-btn:not(.v-btn--icon).overdue {
-  background-color: #f83e70;
-}
-.theme--light.v-btn.complete {
-  color: #3cd1c2;
-}
-.theme--light.v-btn.ongoing {
-  color: #ffaa2c;
-}
-.theme--light.v-btn.overdue {
-  color: #f83e70;
-}
-.handle {
-  cursor: move;
-}
+
 </style>

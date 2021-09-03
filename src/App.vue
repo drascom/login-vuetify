@@ -2,7 +2,7 @@
   <v-app>
     <navbar></navbar>
     <v-main>
-      <v-container fluid>
+      <v-container fluid class="pa-0">
         <router-view :key="$route.fullPath"></router-view>
       </v-container>
     </v-main>

@@ -8,6 +8,8 @@ import store from "@/store"
 import { TiptapVuetifyPlugin } from "tiptap-vuetify"
 import "tiptap-vuetify/dist/main.css"
 
+import VuetifyConfirm from "vuetify-confirm"
+
 import colors from "vuetify/lib/util/colors"
 const vuetify = new Vuetify({
     icons: {
@@ -53,6 +55,9 @@ Vue.use(Vuetify)
 Vue.use(TiptapVuetifyPlugin, {
     vuetify,
     iconsGroup: "md"
+})
+Vue.use(VuetifyConfirm, {
+    vuetify
 })
 
 export default vuetify

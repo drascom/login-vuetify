@@ -3,6 +3,7 @@ import api from "axios"
 const END_POINT = "/api/collections"
 export default {
     async all(payload) {
+        console.log("api payload", payload)
         const params = {
             filter: payload.data.filter ? payload.data.filter : "",
             populate: payload.data.populate,
@@ -36,5 +37,5 @@ export default {
             .then((res) => {
                 return res
             })
-    },
+    }
 }
