@@ -18,16 +18,46 @@
               type="text"
               outlined
               placeholder="Takım Adı"
-              v-model="form.title"
+              v-model="form.name"
               prepend-inner-icon="edit"
             />
+            <v-text-field type="hidden" v-model="form.membercount" />
+            <tags
+              v-model="form.admin"
+              :list="members"
+              label="Takım Admin"
+              :multi="false"
+              table="members"
+            ></tags>
+            <tags
+              v-model="memberships"
+              :list="members"
+              label="Üye Seç"
+              table="members"
+              :multi="true"
+            ></tags>
 
-            <tags v-model="form.members"></tags>
+            <v-list dense v-if="memberships">
+              <v-subheader> Kayıtlı Üyeler {{ form.membercount }}</v-subheader>
+              <v-list-item-group color="primary">
+                <v-list-item v-for="(item, i) in memberships" :key="i">
+                  <v-list-item-icon>
+                    <v-icon> mdi-account </v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title
+                      v-text="item.display ? item.display : item.name"
+                    ></v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+
             <v-row class="justify-end ma-2">
               <v-btn
                 elevation-6
                 class="success mx-0 mt-3 "
-                @click="saveItem()"
+                @click="saveTeam()"
                 :loading="isLoading"
               >
                 {{ editMode ? "Kaydet" : "Ekle" }}
@@ -65,7 +95,7 @@
         hide-details
         prepend-inner-icon="mdi-magnify"
         single-line
-      ></v-text-field>
+      />
       <v-layout row justify-center v-if="items.length < 1" class="pt-12">
         <v-layout column align-center>
           <span
@@ -78,7 +108,7 @@
           </span>
         </v-layout>
       </v-layout>
-      <v-list>
+      <v-list v-if="ready">
         <v-card class="my-4" v-for="(item, index) in filteredList" :key="index">
           <v-list-item
             :key="index"
@@ -91,7 +121,7 @@
                   <v-icon>
                     drag_indicator
                   </v-icon>
-                  {{ item.title }}
+                  {{ item.name }}
                 </v-flex>
                 <v-flex xs12 sm6>
                   <v-icon small left>mdi-phone</v-icon
@@ -99,12 +129,10 @@
                 </v-flex>
               </v-layout>
 
-              <v-list-item-subtitle @click="editPost(item)">
-                <template v-for="(team, i) in item.teams">
-                  <v-chip small class="mt-4 mr-2" :key="i">
-                    {{ team }}
-                  </v-chip>
-                </template>
+              <v-list-item-subtitle>
+                <v-chip small class="mt-4 mr-2">
+                  {{ item.membercount }} Üye
+                </v-chip>
               </v-list-item-subtitle>
             </v-list-item-content>
             <v-list-item-action class="">
@@ -133,6 +161,8 @@
 </template>
 
 <script>
+/* eslint-disable no-unused-vars */
+
 import { mapActions } from "vuex"
 import tags from "@/components/ui/autocomplete.vue"
 export default {
@@ -142,51 +172,105 @@ export default {
   },
   data() {
     return {
+      ready: false,
       search: "",
       editMode: false,
       dialog: false,
       isLoading: false,
+      memberships: [],
       form: {
         name: "",
-        email: "",
-        password: "123456"
+        admin: {},
+        membercount: ""
       }
     }
   },
 
   methods: {
     ...mapActions(["getAllItems", "save", "delete"]),
-    submit() {
-      console.log(this.form)
-    },
-    textUpdate(event) {
-      this.form.content = event
+    async getAddition(item) {
+      await this.getAllItems({
+        parent: "collections",
+        child: "teammember",
+        data: { filter: { "team._id": item._id }, simple: "0" }
+      }).then((res) => {
+        this.form.membercount = res.total
+        res.entries.forEach((item) => {
+          this.memberships.push(item.account)
+        })
+
+        this.dialog = true
+      })
     },
     closeForm() {
       this.dialog = false
       this.editMode = false
+      this.memberships = []
       this.form = {
         name: "",
-        phone: "",
-        email: "",
-        teams: "",
-        password: "123456"
+        admin: ""
       }
     },
     editPost(item) {
-      this.dialog = true
+      this.getAddition(item)
       this.form = item
+      this.form.membercount = this.memberships + 1
       this.editMode = true
     },
-    async saveItem() {
+    saveItem(payload) {
+      return this.save(payload)
+    },
+    async saveTeam() {
       this.isLoading = true
-      let result = await this.save({
+      this.loadingText = "Takım kaydediliyor"
+      //önce takımı kaydet
+      let teamSave = await this.save({
         parent: "collections",
         child: "teams",
         data: this.form
       })
-      if (result && result.statusText) {
+      if (teamSave) {
+        this.$store.dispatch("snackbar/setSnackbar", {
+          color: "success",
+          message: teamSave.data.name + " Kaydedildi"
+        })
         this.isLoading = false
+        this.isLoading = true
+        this.loadingText = "Takım Kayıtları Siliniyor"
+        //bu üyenin eski team kayıtlarını sil
+        let remove = await this.delete({
+          parent: "collections",
+          child: "teammember",
+          data: { filter: { "team._id": teamSave.data._id } }
+        })
+        this.isLoading = false
+        this.isLoading = true
+        this.loadingText = "Takımlar kaydediliyor"
+        console.log("team data", teamSave)
+        //her bir member için takım adıyla ilişki kaydet
+        let complete = await Promise.all(
+          this.memberships.map(async (item) => {
+            let team = {
+              _id: teamSave.data._id,
+              link: "teams",
+              display: teamSave.data.name
+            }
+
+            let result = await this.saveItem({
+              parent: "collections",
+              child: "teammember",
+              data: { account: item, team }
+            })
+          })
+        )
+        if (complete) {
+          this.$store.dispatch("snackbar/setSnackbar", {
+            color: "success",
+            message: "Takım Kayıtları yenilendi."
+          })
+          this.isLoading = false
+          this.loadingText = ""
+        }
         this.closeForm()
       }
     },
@@ -214,28 +298,49 @@ export default {
       }
     }
   },
-  watch: {
-    _by(newValue) {
-      this.form._by = newValue
-    }
-  },
   computed: {
     items() {
       return this.$store.getters.collections.teams
     },
+    members() {
+      return this.$store.getters.collections.members
+    },
     filteredList() {
       return this.$store.getters.collections.teams.filter((item) => {
-        return item.title.toLowerCase().includes(this.search.toLowerCase())
+        return item.name.toLowerCase().includes(this.search.toLowerCase())
       })
     }
   },
-  mounted() {
-    this.getAllItems({ parent: "collections", child: "teams", data: "" })
-    this.getAllItems({
+  async mounted() {
+    this.getAllItems({ parent: "collections", child: "members", data: "" })
+    await this.getAllItems({
       parent: "collections",
-      child: "members",
-      data: { filter: { teams: { $in: ["Antalya"] } } }
+      child: "teams",
+      data: ""
+    }).then(async (items) => {
+      let ready = await Promise.all(
+        items.map(async (item) => {
+          const result = await this.getAllItems({
+            parent: "collections",
+            child: "teammember",
+            data: { filter: { "team._id": item._id }, simple: "0" }
+          })
+          item.membercount = result.total
+        })
+      )
+      if (ready) {
+        this.ready = true
+      }
     })
+
+    // collection link  olarak alınırsa
+
+    // tags olarak alınırsa
+    // this.getAllItems({
+    //   parent: "collections",
+    //   child: "members",
+    //   data: { filter: { teams: { $in: ["Antalya"] } } }
+    // })
   }
 }
 </script>

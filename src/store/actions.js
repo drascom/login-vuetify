@@ -4,8 +4,8 @@ import api from "@/api/index.js"
 import store from "@/store"
 
 export default {
-    async getAllItems({ commit }, payload) {
-        return await api[payload.parent]
+    getAllItems({ commit }, payload) {
+        return api[payload.parent]
             .all(payload)
             .then((res) => {
                 const respData = res.data
@@ -14,7 +14,7 @@ export default {
                     child: payload.child,
                     respData
                 })
-                return res
+                return respData
             })
             .catch((error) => {
                 const newPayload = { field: payload.child, respData: { error } }
@@ -24,12 +24,15 @@ export default {
                 return error
             })
     },
-    save({ commit, dispatch }, payload) {
-        return api[payload.parent]
+    async save({ commit, dispatch }, payload) {
+        return await api[payload.parent]
             .save(payload)
             .then((res) => {
-                dispatch("getAllItems", payload)
-                console.log("yeniden istendi")
+                dispatch("getAllItems", {
+                    parent: payload.parent,
+                    child: payload.child,
+                    data: ""
+                })
                 return res
             })
             .catch((error) => {
@@ -37,26 +40,13 @@ export default {
                 return newPayload
             })
     },
-    saveSingle({ commit }, payload) {
-        return api[payload.parent]
-            .save(payload)
-            .then((res) => {
-                commit(
-                    "snackbar/SET_SNACKBAR", {
-                        color: "success",
-                        message: "Saved."
-                    }, { root: true }
-                )
-                return res
-            })
-            .catch((error) => {
-                return error
-            })
-    },
     delete({ commit, dispatch }, payload) {
         return api[payload.parent].delete(payload).then((res) => {
-            dispatch("getAllItems", payload)
-            console.log("yeniden istendi")
+            dispatch("getAllItems", {
+                parent: payload.parent,
+                child: payload.child,
+                data: ""
+            })
             if (res.data.success) {
                 commit("system/SET_DELETED_STATUS", true, { root: true })
             }
@@ -76,10 +66,10 @@ export default {
     login({ commit }, payload) {
         return api[payload.parent].all(payload).then(
             (response) => {
-                if (response.data.confirm) {
-                    commit("user/SET_USER", response.data, { root: true })
-                    localStorage.setItem("user", JSON.stringify(response.data))
-                    localStorage.setItem("api_key", JSON.stringify(response.data._id))
+                if (response.data[0]._id) {
+                    commit("user/SET_USER", response.data[0], { root: true })
+                    localStorage.setItem("user", JSON.stringify(response.data[0]))
+                    localStorage.setItem("api_key", JSON.stringify(response.data[0]._id))
                     return response.data
                 } else {
                     console.log("loginFailure")

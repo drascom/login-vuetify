@@ -3,12 +3,12 @@ import api from "axios"
 const END_POINT = "/api/collections"
 export default {
     async all(payload) {
-        console.log("api payload", payload)
         const params = {
-            filter: payload.data.filter ? payload.data.filter : "",
-            populate: payload.data.populate,
+            fields: payload.data.fields ? payload.data.fields : "",
+            filter: payload.data.filter ? payload.data.filter : {},
+            populate: payload.data.populate ? payload.data.populate : 0,
             lang: payload.data.lang ? payload.data.lang : "tr",
-            sort: payload.data.sort || { _created: -1 },
+            sort: payload.data.sort || { _created: 1 },
             limit: null,
             // skip: 0,
             simple: payload.data.simple ? payload.data.simple : "1"
@@ -27,10 +27,9 @@ export default {
             })
     },
     async delete(payload) {
-        console.log("api delete payload", payload)
         const params = {
             name: payload.child,
-            filter: { _id: payload.data }
+            filter: payload.data.filter || ""
         }
         return api
             .post(`${END_POINT}/remove/${payload.child}`, params)
@@ -38,4 +37,16 @@ export default {
                 return res
             })
     }
+    // async delete(payload) {
+    //     console.log("api delete payload", payload)
+    //     const params = {
+    //         name: payload.child,
+    //         filter: { _id: payload.data }
+    //     }
+    //     return api
+    //         .post(`${END_POINT}/remove/${payload.child}`, params)
+    //         .then((res) => {
+    //             return res
+    //         })
+    // }
 }

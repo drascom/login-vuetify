@@ -1,5 +1,5 @@
 <template>
-  <v-container class="mb-2" >
+  <v-container class="mb-2">
     <v-slide-y-transition hide-on-leave>
       <v-card v-if="dialog">
         <v-card-title>
@@ -13,39 +13,59 @@
         </v-card-title>
 
         <v-card-text>
-          <v-form class="px-3" ref="form">
-            <v-card-title>Başlık </v-card-title>
+          <v-form class="px-3" ref="form" v-model="isFormValid">
+            <v-select
+              :items="['Admin', 'Üye']"
+              label="Yetki Durumu"
+              outlined
+              v-model="form.role"
+              filled
+            ></v-select>
             <v-text-field
               type="text"
               outlined
               placeholder="İsim"
               v-model="form.name"
               prepend-inner-icon="edit"
-            ></v-text-field>
+              :rules="inputRules"
+            />
             <v-text-field
               type="text"
               outlined
               placeholder="Telefon"
               v-model="form.phone"
               prepend-inner-icon="phone"
-            ></v-text-field>
+              :rules="inputRules"
+            />
             <v-text-field
+              required
               type="email"
               outlined
               placeholder="Email"
               v-model="form.email"
               prepend-inner-icon="email"
-            ></v-text-field>
-            <tags v-model="form.teams"></tags>
-            <v-row class="justify-end ma-2">
+              :rules="emailRules"
+            />
+            <tags
+              v-model="memberships"
+              :list="teams"
+              label="Takımlar"
+              multi
+              table="team"
+            ></tags>
+            <v-row class="justify-end align-center ma-2">
               <v-btn
+                :disabled="!isFormValid"
                 elevation-6
                 class="success mx-0 mt-3 "
-                @click="saveItem()"
+                @click="saveMember()"
                 :loading="isLoading"
               >
                 {{ editMode ? "Kaydet" : "Ekle" }}
               </v-btn>
+              <span v-if="loadingText" class="ml-2 mt-2 text-subtitle-1">
+                {{ loadingText }}
+              </span>
             </v-row>
           </v-form>
         </v-card-text>
@@ -79,8 +99,8 @@
         hide-details
         prepend-inner-icon="mdi-magnify"
         single-line
-      ></v-text-field>
-      <v-layout row justify-center v-if="items.length < 1" class="pt-12">
+      />
+      <v-layout row justify-center v-if="filteredList.length < 1" class="pt-12">
         <v-layout column align-center>
           <span
             :class="{
@@ -105,7 +125,7 @@
                   <v-icon>
                     drag_indicator
                   </v-icon>
-                  {{ item.name }}
+                  {{ item.name }} ({{ item.role }})
                 </v-flex>
                 <v-flex xs12 sm6>
                   <v-icon small left>mdi-phone</v-icon
@@ -116,7 +136,7 @@
               <v-list-item-subtitle @click="editPost(item)">
                 <template v-for="(team, i) in item.teams">
                   <v-chip small class="mt-4 mr-2" :key="i">
-                    {{ team }}
+                    {{ team.name }}
                   </v-chip>
                 </template>
               </v-list-item-subtitle>
@@ -147,6 +167,7 @@
 </template>
 
 <script>
+/* eslint-disable no-unused-vars */
 import { mapActions } from "vuex"
 import tags from "@/components/ui/autocomplete.vue"
 export default {
@@ -160,52 +181,59 @@ export default {
       editMode: false,
       dialog: false,
       isLoading: false,
+      isFormValid: false,
+      loadingText: "",
       form: {
         name: "",
         email: "",
-        password: "123456"
-      }
+        password: "123456",
+        role: "Üye"
+      },
+      memberships: [],
+      inputRules: [
+        (v) => !!v || "Bu alan gerekli",
+        (v) => (v && v.length >= 3) || "En Az 3 Karakter Giriniz"
+      ],
+      emailRules: [
+        (v) => !!v || "Bu alan gerekli",
+        (v) =>
+          !v ||
+          /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) ||
+          "E-mail geçersiz"
+      ]
     }
   },
 
   methods: {
     ...mapActions(["getAllItems", "save", "delete"]),
-    submit() {
-      console.log(this.form)
-    },
+
     textUpdate(event) {
       this.form.content = event
     },
     closeForm() {
       this.dialog = false
       this.editMode = false
+      this.memberships = []
       this.form = {
         name: "",
         phone: "",
         email: "",
         teams: "",
-        password: "123456"
+        password: "123456",
+        role: "Üye"
       }
     },
     editPost(item) {
       this.dialog = true
       this.form = item
+      this.memberships = item.teams
       this.editMode = true
     },
-    async saveItem() {
-      this.isLoading = true
-      let result = await this.save({
-        parent: "collections",
-        child: "members",
-        data: this.form
-      })
-      if (result && result.statusText) {
-        this.isLoading = false
-        this.closeForm()
-      }
+    saveItem(payload) {
+      return this.save(payload)
     },
     async deleteItem(payload) {
-      const res = await this.$confirm("Gerçekten Silmek İstiyor musunuz ?", {
+      const res = await this.$confirm("Bu Üyeyi Silmek İstiyor musunuz ?", {
         title: "Uyarı",
         buttonTrueText: "Evet",
         buttonFalseText: "Hayır",
@@ -213,29 +241,84 @@ export default {
       })
       if (res) {
         this.isLoading = true
-        console.log(payload)
         let result = await this.delete({
           parent: "collections",
           child: "members",
-          data: payload._id
+          data: { filter: { _id: payload._id } }
         })
-        console.log("remove result", result)
         if (result && result.data.success) {
-          console.log("remove success")
+          this.$store.dispatch("snackbar/setSnackbar", {
+            color: "error",
+            message: payload.name + " Silindi"
+          })
           this.isLoading = false
           this.closeForm()
         }
       }
-    }
-  },
-  watch: {
-    _by(newValue) {
-      this.form._by = newValue
+    },
+    async saveMember() {
+      this.isLoading = true
+      this.loadingText = "Üye kaydediliyor"
+      this.form.teams = this.memberships
+      //önce üyeyi kaydet
+      let member = await this.saveItem({
+        parent: "collections",
+        child: "members",
+        data: this.form
+      })
+      if (member) {
+        this.$store.dispatch("snackbar/setSnackbar", {
+          color: "success",
+          message: member.data.name + " Kaydedildi"
+        })
+        this.isLoading = false
+        this.isLoading = true
+        this.loadingText = "Takım Kayıtları Siliniyor"
+        //bu üyenin eski team kayıtlarını sil
+        let remove = await this.delete({
+          parent: "collections",
+          child: "teammember",
+          data: { filter: { "account._id": member.data._id } }
+        })
+        this.isLoading = false
+        this.isLoading = true
+        this.loadingText = "Takımlar kaydediliyor"
+        //her bir takım için üye adıyla ilişki kaydet
+        let complete = await Promise.all(
+          this.memberships.map(async (item) => {
+            let team = {
+              _id: item._id,
+              link: "teams",
+              display: item.name
+            }
+            let account = {
+              _id: member.data._id,
+              link: "members",
+              display: member.data.name
+            }
+
+            const result = await this.saveItem({
+              parent: "collections",
+              child: "teammember",
+              data: { account, team }
+            })
+          })
+        )
+        if (complete) {
+          this.$store.dispatch("snackbar/setSnackbar", {
+            color: "success",
+            message: "Takım Kayıtları yenilendi."
+          })
+          this.isLoading = false
+          this.loadingText = ""
+        }
+      }
+      this.closeForm()
     }
   },
   computed: {
-    items() {
-      return this.$store.getters.collections.members
+    teams() {
+      return this.$store.getters.collections.teams
     },
     filteredList() {
       return this.$store.getters.collections.members.filter((item) => {
@@ -245,6 +328,7 @@ export default {
   },
   mounted() {
     this.getAllItems({ parent: "collections", child: "members", data: "" })
+    this.getAllItems({ parent: "collections", child: "teams", data: "" })
   }
 }
 </script>
@@ -253,5 +337,4 @@ export default {
 .project {
   border-left: 4px solid #f83e70;
 }
-
 </style>

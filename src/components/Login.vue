@@ -22,7 +22,7 @@
                         prepend-icon="email"
                         type="text"
                         color="teal accent-3"
-                        v-model="loginData.user"
+                        v-model="loginData.email"
                       />
 
                       <v-text-field
@@ -164,7 +164,7 @@ export default {
     isFormValid: false,
     showPass: true,
     loginData: {
-      user: "a@b.com",
+      email: "a@b.com",
       password: "111111"
     },
     inputRules: [
@@ -181,7 +181,8 @@ export default {
     registerData: {
       name: "",
       password: "",
-      email: ""
+      email: "",
+      role: "Üye"
     }
   }),
   computed: {
@@ -193,6 +194,10 @@ export default {
   watch: {
     isLoggedin(newValue) {
       if (newValue) {
+        this.$store.dispatch("snackbar/setSnackbar", {
+          color: "success",
+          message: "Giriş yapıldı"
+        })
         this.$router.push("/dashboard")
       }
     },
@@ -211,8 +216,9 @@ export default {
         parent: "collections",
         child: "members",
         data: {
-          populate: 1,
+          fields: { password: 0 },
           filter: {
+            type: "login",
             email: this.loginData.email,
             password: this.loginData.password.trim()
           }
@@ -223,10 +229,22 @@ export default {
       let result = await this.register(this.registerData)
       if (!result.status) {
         this.error = result.error || result
+        this.$store.dispatch("snackbar/setSnackbar", {
+          color: "error",
+          message: "Formda hata var." + this.error
+        })
+      } else {
+        this.$store.dispatch("snackbar/setSnackbar", {
+          color: "warning",
+          message: this.registerData.name + " kaydınız alındı."
+        })
       }
-      console.log("component result ", result)
     }
   },
-  mounted() {}
+  created() {
+    if (this.isLoggedin) {
+      this.$router.push({ name: "Dashboard" })
+    }
+  }
 }
 </script>

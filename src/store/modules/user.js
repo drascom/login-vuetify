@@ -5,7 +5,7 @@ import api from "@/api/users.js"
 const state = () => {
     return {
         userData: JSON.parse(localStorage.getItem("user")) || false,
-        isLoggedin: false,
+        isLoggedin: JSON.parse(localStorage.getItem("api-key")) || false,
         isLoginFailure: false,
         newUser: false
     }
