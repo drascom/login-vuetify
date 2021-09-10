@@ -26,7 +26,7 @@
                       />
 
                       <v-text-field
-                        id="password"
+                        id="loginpassword"
                         label="Şifre"
                         name="password"
                         prepend-icon="lock"
@@ -37,7 +37,9 @@
                         @click:append="showPass = !showPass"
                       />
                     </v-form>
-                    <h3 class="text-center mt-4">Şifremi unuttum ?</h3>
+                    <h3 class="text-center mt-4" @click="step = 3">
+                      Şifremi unuttum ?
+                    </h3>
                   </v-card-text>
                   <div class="text-center my-3">
                     <v-btn
@@ -145,6 +147,161 @@
                 </v-col>
               </v-row>
             </v-window-item>
+            <v-window-item :value="3">
+              <v-row class="fill-height">
+                <v-col cols="12" md="8">
+                  <v-card-text class=" mt-12">
+                    <h1 class="text-center display-1 teal--text text--accent-3">
+                      Sıfırlama İsteği !
+                    </h1>
+                    <h4 class="text-center">
+                      Kayıt olduğun email adresini kutucuğa yazar mısın ?
+                    </h4>
+                  </v-card-text>
+                  <v-card-text class="">
+                    <v-alert
+                      v-if="error"
+                      border="left"
+                      colored-border
+                      type="error"
+                      class="elevation-6 my-4"
+                    >
+                      {{ error }}
+                    </v-alert>
+                    <v-form v-model="isForgetFormValid">
+                      <v-text-field
+                        outlined
+                        label="E-mail"
+                        name="Email"
+                        :rules="emailRules"
+                        autocomplete="new-password"
+                        prepend-inner-icon="email"
+                        type="text"
+                        color="teal accent-3"
+                        v-model="registerData.email"
+                      />
+                    </v-form>
+                    <div class="text-center  mb-3">
+                      <v-btn
+                        :disabled="!isForgetFormValid"
+                        @click="handleForgot()"
+                        rounded
+                        color="teal accent-3"
+                        :dark="isForgetFormValid"
+                      >
+                        Şifre Gönder
+                      </v-btn>
+                    </div>
+                  </v-card-text>
+                </v-col>
+
+                <v-col cols="12" class="teal accent-3" md="4">
+                  <v-card-text class="white--text mt-4">
+                    <h1 class="text-center ma-8">Şimdi Hatırladım !</h1>
+                    <h4 class="text-center font-weight-medium">
+                      Şifreni hatırladıysan girişe gidebilirsin.
+                    </h4>
+                  </v-card-text>
+                  <div class="text-center  mb-3">
+                    <v-btn dark @click="step = 1" rounded color="teal accent-3">
+                      Girişe Dön
+                    </v-btn>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-window-item>
+            <v-window-item :value="4" v-if="token">
+              <v-row class="fill-height">
+                <v-col cols="12" md="8">
+                  <v-card-text class=" mt-12">
+                    <h2 class="text-center display-1 teal--text text--accent-3">
+                      Hadi Sıfırlayalım
+                    </h2>
+                    <h5 class="text-center">
+                      En az 6 haneli yeni şifreni yazar mısın ?
+                    </h5>
+                  </v-card-text>
+                  <v-card-text class="">
+                    <v-alert
+                      v-if="error"
+                      border="left"
+                      colored-border
+                      type="error"
+                      class="elevation-6 my-4"
+                    >
+                      {{ error }}
+                    </v-alert>
+                    <v-form v-model="isNewPasswordValid">
+                      <v-text-field
+                        id="password"
+                        label="Şifre"
+                        name="password"
+                        :rules="inputRules"
+                        autocomplete="off"
+                        prepend-icon="lock"
+                        color="teal accent-3"
+                        v-model="newPassword"
+                        :type="showPass ? 'text' : 'password'"
+                        :append-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
+                        @click:append="showPass = !showPass"
+                      />
+                    </v-form>
+                    <div class="text-center  mb-3">
+                      <v-btn
+                        :disabled="!isNewPasswordValid"
+                        @click="handleUpdate()"
+                        rounded
+                        color="teal accent-3"
+                        :dark="isNewPasswordValid"
+                      >
+                        Güncelle
+                      </v-btn>
+                    </div>
+                  </v-card-text>
+                </v-col>
+                <v-col cols="12" class="teal accent-3" md="4">
+                  <v-card-text class="white--text mt-4">
+                    <h1 class="text-center display-1">Vazgeçtim !</h1>
+                    <h4 class="text-center">
+                      Şifreni hatırladıysan girişe gidebilirsin.
+                    </h4>
+                  </v-card-text>
+                  <div class="text-center  mb-3">
+                    <v-btn dark @click="step = 1" rounded color="teal accent-3">
+                      Girişe Dön
+                    </v-btn>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-window-item>
+            <v-window-item :value="5">
+              <v-row class="fill-height">
+                <v-col cols="12" md="8">
+                  <v-card-text class=" mt-12">
+                    <h2 class="text-center display-1 teal--text text--accent-3">
+                      Talebiniz Alındı
+                    </h2>
+                    <h5 class="text-center">
+                      Lütfen emalinizi kontrol ederek maildeki butona tıklayın.
+                      <p>Böylece yeni şifrenizi ayarlayabilirsiz</p>
+                    </h5>
+                  </v-card-text>
+                </v-col>
+                <v-col cols="12" class="teal accent-3" md="4">
+                  <v-card-text class="white--text mt-4">
+                    <h1 class="text-center ma-8">Duyuruları oku !</h1>
+                    <h4 class="text-center font-weight-medium mb-4">
+                      Mailini beklerken anasayfada duyuruları okuyablirsin.
+                    </h4>
+                  </v-card-text>
+                  <div class="text-center  mb-3">
+                    <v-btn dark @click="$router.push('/')" rounded color="">
+                      Girişe Dön
+                    </v-btn>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-window-item>
           </v-window>
         </v-card>
       </v-col>
@@ -154,7 +311,7 @@
 
 <script>
 import { mapActions } from "vuex"
-// import { mapGetters } from "vuex"
+import helpers from "@/plugins/helper.js"
 export default {
   name: "Login",
 
@@ -162,10 +319,15 @@ export default {
     error: "",
     step: 1,
     isFormValid: false,
+    isForgetFormValid: false,
+    isNewPasswordValid: false,
+    token: "",
+    memberId: "",
+    newPassword: "222222",
     showPass: true,
     loginData: {
-      email: "a@b.com",
-      password: "111111"
+      email: "",
+      password: ""
     },
     inputRules: [
       (v) => !!v || "Bu alan gerekli",
@@ -182,22 +344,18 @@ export default {
       name: "",
       password: "",
       email: "",
-      role: "Üye"
+      role: "Üye",
+      published: true
     }
   }),
   computed: {
     isLoggedin() {
       return this.$store.state.user.isLoggedin
     }
-    // ...mapGetters(["isLoggedin", "isLoginFailure"])
   },
   watch: {
     isLoggedin(newValue) {
       if (newValue) {
-        this.$store.dispatch("snackbar/setSnackbar", {
-          color: "success",
-          message: "Giriş yapıldı"
-        })
         this.$router.push("/dashboard")
       }
     },
@@ -210,7 +368,9 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["login", "register"]),
+    ...helpers,
+    ...mapActions(["login", "register", "forgot", "check"]),
+
     handleSingIn() {
       this.login({
         parent: "collections",
@@ -225,25 +385,57 @@ export default {
         }
       })
     },
+    async handleForgot() {
+      this.registerData.token = this.generateCode(6)
+      let result = await this.forgot({
+        data: {
+          fields: { email: 1, name: 1 },
+          filter: {
+            type: "forgot",
+            email: this.registerData.email,
+            token: this.registerData.token
+          }
+        }
+      })
+      if (result) {
+        this.step = 1
+        this.registerData.email = ""
+      }
+    },
     async handleSingUp() {
       let result = await this.register(this.registerData)
-      if (!result.status) {
-        this.error = result.error || result
-        this.$store.dispatch("snackbar/setSnackbar", {
-          color: "error",
-          message: "Formda hata var." + this.error
+      result ? (this.step = 1) : ""
+    },
+    async handleUpdate() {
+      let token = await this.check({
+        filter: {
+          token: this.token,
+          _id: this.memberId
+        }
+      })
+      if (token) {
+        let pass = await this.register({
+          password: this.newPassword,
+          _id: this.memberId,
+          token: ""
         })
+        pass ? (this.step = 1) : console.log("şifre kaydedilemedi")
       } else {
-        this.$store.dispatch("snackbar/setSnackbar", {
-          color: "warning",
-          message: this.registerData.name + " kaydınız alındı."
-        })
+        console.log("token bulunamadı")
       }
     }
   },
   created() {
     if (this.isLoggedin) {
       this.$router.push({ name: "Dashboard" })
+    }
+  },
+  mounted() {
+    if (this.$route.query.token && this.$route.query.token.length > 8) {
+      var arr = this.$route.query.token.split("-")
+      this.token = arr[0]
+      this.memberId = arr[1]
+      this.step = 4
     }
   }
 }

@@ -14,15 +14,25 @@
 
         <v-card-text>
           <v-form class="px-3" ref="form">
+            <v-text-field type="hidden" v-model="form.membercount" />
+            <tags
+              key="team"
+              v-model="form.teams"
+              :list="cities"
+              label="Şehir Seç"
+              :multi="false"
+              table="cities"
+            ></tags>
             <v-text-field
               type="text"
               outlined
-              placeholder="Takım Adı"
+              placeholder="Takım  Adı"
               v-model="form.name"
               prepend-inner-icon="edit"
+              v-uppercase
             />
-            <v-text-field type="hidden" v-model="form.membercount" />
             <tags
+              key="admin"
               v-model="form.admin"
               :list="members"
               label="Takım Admin"
@@ -30,23 +40,26 @@
               table="members"
             ></tags>
             <tags
-              v-model="memberships"
+              key="member"
+              v-model="form.linked"
               :list="members"
               label="Üye Seç"
               table="members"
               :multi="true"
             ></tags>
 
-            <v-list dense v-if="memberships">
-              <v-subheader> Kayıtlı Üyeler {{ form.membercount }}</v-subheader>
+            <v-list dense v-if="form.linked">
+              <v-subheader>
+                Kayıtlı Üyeler {{ form.linked.length }}</v-subheader
+              >
               <v-list-item-group color="primary">
-                <v-list-item v-for="(item, i) in memberships" :key="i">
+                <v-list-item v-for="(item, i) in form.linked" :key="i">
                   <v-list-item-icon>
                     <v-icon> mdi-account </v-icon>
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title
-                      v-text="item.display ? item.display : item.name"
+                      v-text="item.display"
                     ></v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
@@ -96,7 +109,7 @@
         prepend-inner-icon="mdi-magnify"
         single-line
       />
-      <v-layout row justify-center v-if="items.length < 1" class="pt-12">
+      <v-layout row justify-center v-if="cities.length < 1" class="pt-12">
         <v-layout column align-center>
           <span
             :class="{
@@ -104,17 +117,19 @@
               'grey--text text-h5 ': $vuetify.breakpoint.xsOnly
             }"
           >
-            Hiç Üye bulunamadı 😔
+            Hiç Takım bulunamadı 😔
           </span>
         </v-layout>
       </v-layout>
-      <v-list v-if="ready">
+      <v-list v-if="cities">
         <v-card class="my-4" v-for="(item, index) in filteredList" :key="index">
           <v-list-item
             :key="index"
             class="project"
             :class="$vuetify.breakpoint.xs ? 'px-1' : ''"
+            v-if="item.teams && item.teams.length"
           >
+            
             <v-list-item-content>
               <v-layout row wrap class="mt-1 ml-1">
                 <v-flex xs12 sm6>
@@ -123,24 +138,26 @@
                   </v-icon>
                   {{ item.name }}
                 </v-flex>
-                <v-flex xs12 sm6>
-                  <v-icon small left>mdi-phone</v-icon
-                  >{{ item.phone || " - Yok - " }}
-                </v-flex>
               </v-layout>
-
-              <v-list-item-subtitle>
+              <v-list-item-subtitle v-if="item.teams">
+                <template v-for="team in item.teams">
+                  <v-chip small class="mt-4 mr-2" :key="team._id">
+                    {{ team.display }}
+                  </v-chip>
+                </template>
+              </v-list-item-subtitle>
+              <v-list-item-subtitle v-else>
                 <v-chip small class="mt-4 mr-2">
-                  {{ item.membercount }} Üye
+                  "Takım Yok."
                 </v-chip>
               </v-list-item-subtitle>
             </v-list-item-content>
             <v-list-item-action class="">
               <v-list-item-action-text>
-                {{ item._created | moment(" Do, MMMM YYYY") }}
+                <v-btn x-small dark color="red accent-3"  @click="newTeam(item)">Takım Ekle</v-btn>
               </v-list-item-action-text>
               <div class="d-flex flew-row">
-                <v-btn icon small class="project ma-1" @click="editPost(item)">
+                <v-btn icon small class="project ma-1" @click="editTeam(item)">
                   <v-icon>edit</v-icon>
                 </v-btn>
                 <v-btn
@@ -164,6 +181,8 @@
 /* eslint-disable no-unused-vars */
 
 import { mapActions } from "vuex"
+import { mapState } from "vuex"
+
 import tags from "@/components/ui/autocomplete.vue"
 export default {
   name: "Teams",
@@ -177,45 +196,25 @@ export default {
       editMode: false,
       dialog: false,
       isLoading: false,
-      memberships: [],
-      form: {
-        name: "",
-        admin: {},
-        membercount: ""
-      }
+      form: {}
     }
   },
 
   methods: {
     ...mapActions(["getAllItems", "save", "delete"]),
-    async getAddition(item) {
-      await this.getAllItems({
-        parent: "collections",
-        child: "teammember",
-        data: { filter: { "team._id": item._id }, simple: "0" }
-      }).then((res) => {
-        this.form.membercount = res.total
-        res.entries.forEach((item) => {
-          this.memberships.push(item.account)
-        })
-
-        this.dialog = true
-      })
-    },
     closeForm() {
       this.dialog = false
       this.editMode = false
-      this.memberships = []
-      this.form = {
-        name: "",
-        admin: ""
-      }
+      this.form = {}
     },
-    editPost(item) {
-      this.getAddition(item)
+    editTeam(item) {
       this.form = item
-      this.form.membercount = this.memberships + 1
       this.editMode = true
+      this.dialog = true
+    },
+    newTeam(item){
+       this.dialog = true
+       
     },
     saveItem(payload) {
       return this.save(payload)
@@ -223,56 +222,68 @@ export default {
     async saveTeam() {
       this.isLoading = true
       this.loadingText = "Takım kaydediliyor"
+
+      // => linkleri leri ayrı olarak tut
+      let linked = this.form.linked
+
+      // => linkleri formdan kaldır
+      this.$delete(this.form, "linked")
+
       //önce takımı kaydet
-      let teamSave = await this.save({
+      let savedTeam = await this.save({
         parent: "collections",
         child: "teams",
         data: this.form
       })
-      if (teamSave) {
-        this.$store.dispatch("snackbar/setSnackbar", {
-          color: "success",
-          message: teamSave.data.name + " Kaydedildi"
-        })
-        this.isLoading = false
-        this.isLoading = true
+      if (savedTeam) {
+        this.$store.commit(
+          "snackbar/success",
+          savedTeam.data.name + " Kaydedildi"
+        )
         this.loadingText = "Takım Kayıtları Siliniyor"
-        //bu üyenin eski team kayıtlarını sil
+        //bu takımın eski team üye kayıtlarını sil
         let remove = await this.delete({
           parent: "collections",
           child: "teammember",
-          data: { filter: { "team._id": teamSave.data._id } }
+          data: { filter: { "team._id": savedTeam.data._id } }
         })
-        this.isLoading = false
-        this.isLoading = true
         this.loadingText = "Takımlar kaydediliyor"
-        console.log("team data", teamSave)
         //her bir member için takım adıyla ilişki kaydet
-        let complete = await Promise.all(
-          this.memberships.map(async (item) => {
-            let team = {
-              _id: teamSave.data._id,
-              link: "teams",
-              display: teamSave.data.name
-            }
-
-            let result = await this.saveItem({
-              parent: "collections",
-              child: "teammember",
-              data: { account: item, team }
+        if (linked && linked.length >= 0) {
+          let complete = await Promise.all(
+            linked.map(async (item) => {
+              let member = {
+                _id: item._id,
+                link: "members",
+                display: item.display
+              }
+              let team = {
+                _id: savedTeam.data._id,
+                link: "teams",
+                display: savedTeam.data.name
+              }
+              let result = await this.saveItem({
+                parent: "collections",
+                child: "teammember",
+                data: { member: item, team }
+              })
             })
-          })
-        )
-        if (complete) {
-          this.$store.dispatch("snackbar/setSnackbar", {
-            color: "success",
-            message: "Takım Kayıtları yenilendi."
-          })
-          this.isLoading = false
-          this.loadingText = ""
+          )
+          if (complete) {
+            this.getAllItems({
+              parent: "collections",
+              child: "teams",
+              data: ""
+            })
+            this.$store.commit("snackbar/success", "Takım Kayıtları yenilendi.")
+            this.isLoading = false
+            this.loadingText = ""
+          }
         }
-        this.closeForm()
       }
+      this.isLoading = false
+      this.loadingText = ""
+      this.closeForm()
     },
     async deleteItem(payload) {
       const res = await this.$confirm("Gerçekten Silmek İstiyor musunuz ?", {
@@ -299,48 +310,44 @@ export default {
     }
   },
   computed: {
-    items() {
-      return this.$store.getters.collections.teams
-    },
-    members() {
-      return this.$store.getters.collections.members
-    },
+    ...mapState({
+      members: (state) => state.collections.members,
+      teams: (state) => state.collections.teams,
+      cities: (state) => state.collections.cities
+    }),
     filteredList() {
-      return this.$store.getters.collections.teams.filter((item) => {
+      return this.cities.filter((item) => {
         return item.name.toLowerCase().includes(this.search.toLowerCase())
       })
     }
   },
-  async mounted() {
-    this.getAllItems({ parent: "collections", child: "members", data: "" })
-    await this.getAllItems({
-      parent: "collections",
-      child: "teams",
-      data: ""
-    }).then(async (items) => {
-      let ready = await Promise.all(
-        items.map(async (item) => {
-          const result = await this.getAllItems({
-            parent: "collections",
-            child: "teammember",
-            data: { filter: { "team._id": item._id }, simple: "0" }
-          })
-          item.membercount = result.total
-        })
-      )
-      if (ready) {
-        this.ready = true
-      }
-    })
 
-    // collection link  olarak alınırsa
-
-    // tags olarak alınırsa
-    // this.getAllItems({
-    //   parent: "collections",
-    //   child: "members",
-    //   data: { filter: { teams: { $in: ["Antalya"] } } }
-    // })
+  async beforeMount() {
+    if (!this.cities || this.cities.length <= 0) {
+      await this.getAllItems({
+        parent: "collections",
+        child: "cities",
+        data: {
+          sort: { name: 1 }
+        }
+      })
+    }
+    if (!this.teams || this.teams.length <= 0) {
+      await this.getAllItems({
+        parent: "collections",
+        child: "teams",
+        data: {
+          sort: { name: 1 }
+        }
+      })
+    }
+    if (!this.members || this.members.length <= 0) {
+      await this.getAllItems({
+        parent: "collections",
+        child: "members",
+        data: ""
+      })
+    }
   }
 }
 </script>

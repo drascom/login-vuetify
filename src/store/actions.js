@@ -59,36 +59,99 @@ export default {
                 return api[payload.name].deleteItem(item.id)
             })
         ).finally(() => {
-            dispatch("getAllItems", { name: payload.name })
-            return true
+            dispatch("getAllItems", { name: payload.name, data: {} })
         })
     },
     login({ commit }, payload) {
         return api[payload.parent].all(payload).then(
             (response) => {
-                if (response.data[0]._id) {
+                if (response.data) {
                     commit("user/SET_USER", response.data[0], { root: true })
                     localStorage.setItem("user", JSON.stringify(response.data[0]))
                     localStorage.setItem("api_key", JSON.stringify(response.data[0]._id))
+                    commit("snackbar/success", "Giriş başarılı")
                     return response.data
                 } else {
-                    console.log("loginFailure")
+                    console.log("no data in response")
                 }
             },
             (error) => {
-                console.log("store error")
+                console.log(
+                    `Kodl: ${error.response.status} ${error.response.data.error}`
+                )
+                commit("snackbar/error", error.response.data.error)
+                return "Kod: " + error.response.status + " " + error.response.data.error
             }
         )
     },
     register({ commit }, payload) {
         return api["collections"]
             .save({
-                parent: "colections",
                 child: "members",
                 data: payload
             })
-            .then((res) => {
-                return res
+            .then((response) => {
+                if (response.data) {
+                    console.log("register", response)
+                    commit("snackbar/success", response.data.name + " kaydınız alındı.")
+                    return true
+                } else {
+                    commit("snackbar/error", "Formda hata  " + response)
+                    return false
+                }
             })
+    },
+    forgot({ commit }, payload) {
+        return api["collections"]
+            .all({
+                child: "members",
+                data: payload.data
+            })
+            .then(
+                (response) => {
+                    console.log("forgot response", response)
+                    if (response.data.length > 0) {
+                        commit(
+                            "snackbar/success",
+                            response.data[0].name + " Sıfırlama talebi gönderildi."
+                        )
+                        return true
+                    } else {
+                        console.log("email forgot data not array")
+                        return false
+                    }
+                },
+                (error) => {
+                    console.log(
+                        `Kodf: ${error.response.status} ${error.response.data.error}`
+                    )
+                    commit("snackbar/error", "Formda hata  " + error.response.data.error)
+                    return false
+                }
+            )
+    },
+    check({ commit }, payload) {
+        return api["collections"]
+            .all({
+                child: "members",
+                data: payload
+            })
+            .then(
+                (response) => {
+                    if (response.data.length > 0) {
+                        return true
+                    } else {
+                        console.log("token sorgusu boş")
+                        return false
+                    }
+                },
+                (error) => {
+                    console.log(
+                        `Kodf: ${error.response.status} ${error.response.data.error}`
+                    )
+                    commit("snackbar/error", "Formda hata  " + error.response.data.error)
+                    return false
+                }
+            )
     }
 }

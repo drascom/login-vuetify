@@ -1,7 +1,9 @@
 <template>
   <div>
     <v-app-bar dense v-if="isLoggedin">
-      <v-app-bar-nav-icon></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon
+        @click="$router.push('Dashboard')"
+      ></v-app-bar-nav-icon>
 
       <v-toolbar-title>Yönetime Hoşgeldiniz</v-toolbar-title>
 
@@ -20,6 +22,12 @@
             </v-list-item>
             <v-list-item @click="$router.push('/duyurular')">
               <v-list-item-title> Duyurular </v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="$router.push('/teams')">
+              <v-list-item-title> Takımlar </v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="$router.push('/members')">
+              <v-list-item-title> Üyeler </v-list-item-title>
             </v-list-item>
             <v-list-item @click="doLogout()">
               <v-list-item-title>Çıkış</v-list-item-title>
@@ -40,7 +48,10 @@
       <v-app-bar-title>DAD Duyuru Panosu</v-app-bar-title>
 
       <v-spacer></v-spacer>
-      <v-btn text @click="goToLogin()">
+      <v-btn text @click="goToHome()" v-if="$route.fullPath == '/login'">
+        <v-icon left>mdi-home</v-icon>AnaSayfa
+      </v-btn>
+      <v-btn text @click="goToLogin()" v-else>
         <v-icon left>mdi-account</v-icon>Giriş
       </v-btn>
     </v-app-bar>
@@ -59,6 +70,9 @@ export default {
     ...mapMutations("user", ["logout"]),
     goToLogin() {
       this.$router.push("/login")
+    },
+    goToHome() {
+      this.$router.push("/")
     },
     doLogout() {
       this.logout()

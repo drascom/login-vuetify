@@ -24,7 +24,7 @@ export default {
     }
   },
   mounted() {
-    this.getAllItems({ parent: "collections", child: "duyurular", data: "" })
+    this.getAllItems({ parent: "collections", child: "duyurular", data:{sort:{_created:1}} })
   }
 }
 </script>

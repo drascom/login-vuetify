@@ -59,5 +59,4 @@ Vue.use(TiptapVuetifyPlugin, {
 Vue.use(VuetifyConfirm, {
     vuetify
 })
-
 export default vuetify

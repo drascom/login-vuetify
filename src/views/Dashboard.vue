@@ -16,7 +16,7 @@
             <v-card-text class="text-center">
               <p class="headline">Duyurular</p>
 
-              <p class="body-2">Aktif Duyuru : 3</p>
+              <p class="body-2">Aktif Duyuru : {{ countDuyurular }}</p>
             </v-card-text>
           </v-card>
         </router-link>
@@ -32,7 +32,7 @@
             <v-card-text class="text-center">
               <p class="headline">Takımlar</p>
 
-              <p class="body-2">Takım Sayısı : 50</p>
+              <p class="body-2">Takım Sayısı : {{ countTeams }}</p>
             </v-card-text>
           </v-card>
         </router-link>
@@ -47,7 +47,7 @@
             <v-card-text class="text-center">
               <p class="headline">Üyeler</p>
 
-              <p class="body-2">Aktif Üye : 123</p>
+              <p class="body-2">Aktif Üye : {{ countMembers }}</p>
             </v-card-text>
           </v-card>
         </router-link>
@@ -78,9 +78,39 @@
 </template>
 
 <script>
+import { mapActions } from "vuex"
+import { mapGetters } from "vuex"
 export default {
   data() {
     return {}
+  },
+  computed: {
+    ...mapGetters(["countDuyurular", "countMembers", "countTeams"])
+  },
+  methods: {
+    ...mapActions(["getAllItems", "save", "delete"])
+  },
+  async mounted() {
+    await this.getAllItems({
+      parent: "collections",
+      child: "members",
+      data: ""
+    })
+    await this.getAllItems({
+      parent: "collections",
+      child: "cities",
+      data: { sort: { name: 1 } }
+    })
+     await this.getAllItems({
+      parent: "collections",
+      child: "teams",
+      data: { sort: { name: 1 } }
+    })
+    await this.getAllItems({
+      parent: "collections",
+      child: "duyurular",
+      data: { sort: { _created: 1 } }
+    })
   }
 }
 </script>

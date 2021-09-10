@@ -6,7 +6,7 @@ import store from "@/store/index.js"
 axios.defaults.baseURL = process.env.VUE_APP_API_URL
 axios.defaults.headers.common["Content-Type"] = "application/json"
 axios.defaults.headers.common["Cockpit-Token"] =
-    "02addf09176edcfd28734398683fa3"
+    "account-8546c82a1be1083bf40965113674f2"
 axios.interceptors.request.use(
     (config) => {
         //START REQUEST SET LOADING STATUS TRUE IF SERVER ONLINE

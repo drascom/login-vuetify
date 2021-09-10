@@ -2,23 +2,39 @@ export default {
     namespaced: true,
     name: "snackbar",
     state: {
-        // snackbars: []
-        snackbar: {}
+        items: []
     },
     mutations: {
-        SET_SNACKBAR(state, snackbar) {
-            // state.snackbars = state.snackbars.concat( snackbar );
-            state.snackbar = snackbar
+        success(context, value) {
+            context.items.push({
+                message: value,
+                color: "green",
+                timeout: 2000
+            })
+        },
+        error(context, value) {
+            context.items.push({
+                message: value,
+                color: "red",
+                timeout: 2000
+            })
+        },
+        info(context, value) {
+            context.items.push({
+                message: value,
+                color: "blue",
+                timeout: 2000
+            })
+        },
+        warning(context, value) {
+            context.items.push({
+                message: value,
+                color: "orange",
+                timeout: 2000
+            })
+        },
+        cleanup(context, value) {
+            context.items = value
         }
-    },
-    actions: {
-        setSnackbar({ commit }, snackbar) {
-            snackbar.timeout = snackbar.timeout || 2000
-            snackbar.right = true
-            snackbar.color = snackbar.color || "success"
-            commit("SET_SNACKBAR", snackbar)
-        }
-    },
-    getters: {},
-    modules: {}
+    }
 }

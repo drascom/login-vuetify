@@ -31,3 +31,8 @@ export default {
   })
 }
 </script>
+<style>
+.code input {
+  text-transform: uppercase;
+}
+</style>

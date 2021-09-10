@@ -6,35 +6,24 @@
     item-text="name"
     outlined
     chips
-    close
     small-chips
+    deletable-chips
     :label="label"
     :multiple="multi"
     return-object
     hide-selected
-    :rules="[(v) => !!v || 'En Az Bir kayıt seçiniz']"
+    :rules="required ? [(v) => !!v || 'En Az Bir kayıt seçiniz'] : []"
   >
-    <template v-slot:selection="data">
-      <v-chip
-        v-bind="data.attrs"
-        :input-value="data.selected"
-        close
-        @click="data.select"
-        @click:close="remove(data.index)"
-      >
-        {{ data.item.name }}
-      </v-chip>
-    </template>
   </v-autocomplete>
 </template>
 
 <script>
 export default {
   name: "tags",
-  props: ["value", "list", "label", "multi", "table"],
+  props: ["value", "list", "label", "multi", "table", "required"],
   data() {
     return {
-      inputVal: this.value || null
+      inputVal: this.value
     }
   },
   computed: {
@@ -44,15 +33,23 @@ export default {
       },
       set(val) {
         let sendBack = []
-        val.forEach((item) => {
-          sendBack.push({
-            _id: item._id,
-            link: this.table,
-            display: item.name
+        if (val.length > 0) {
+          val.forEach((item) => {
+            sendBack.push({
+              _id: item._id,
+              link: this.table,
+              display: item.name || item.display
+            })
           })
-        })
+        } else {
+          sendBack = {
+            _id: val._id,
+            link: this.table,
+            display: val.name || val.display
+          }
+        }
 
-        this.$emit("input", val)
+        this.$emit("input", sendBack)
         // this.inputVal = sendBack
       }
     }

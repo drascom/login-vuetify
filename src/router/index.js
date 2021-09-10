@@ -42,7 +42,7 @@ const routes = [{
             requiresAuth: true
         },
         component: () =>
-            import ( /* webpackChunkName: "Duyurular" */ "../views/Teams.vue")
+            import ( /* webpackChunkName: "Teams" */ "../views/Teams.vue")
     },
     {
         path: "/members",
@@ -51,7 +51,20 @@ const routes = [{
             requiresAuth: true
         },
         component: () =>
-            import ( /* webpackChunkName: "Duyurular" */ "../views/Members.vue")
+            import ( /* webpackChunkName: "Members" */ "../views/Members.vue")
+    },
+    {
+        path: "/members/:id?",
+        name: "EditMember",
+        meta: {
+            requiresAuth: true
+        },
+        props: true,
+        component: () =>
+            import (
+                /* webpackChunkName: "Members" */
+                "../views/Members.vue"
+            )
     },
     {
         path: "/cases",
@@ -60,7 +73,7 @@ const routes = [{
             requiresAuth: true
         },
         component: () =>
-            import ( /* webpackChunkName: "Duyurular" */ "../views/Cases.vue")
+            import ( /* webpackChunkName: "Cases" */ "../views/Cases.vue")
     }
 ]
 

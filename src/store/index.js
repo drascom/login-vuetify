@@ -18,6 +18,15 @@ const getters = {
     },
     collections: (state) => {
         return state.collections
+    },
+    countDuyurular: (state) => {
+        return state.collections.duyurular.length
+    },
+    countMembers: (state) => {
+        return state.collections.members.length
+    },
+    countTeams: (state) => {
+        return state.collections.teams.length
     }
 }
 const mutations = {

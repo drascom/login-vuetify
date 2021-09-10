@@ -1,12 +1,10 @@
-const state = () => {
-    return {
+export default {
+    namespaced: true,
+    state: {
         duyurular: [],
         users: [],
         members: [],
-        teams: []
+        teams: [],
+        cities: []
     }
-}
-export default {
-    namespaced: true,
-    state
 }
