@@ -76,6 +76,15 @@ const routes = [{
         },
         component: () =>
             import ( /* webpackChunkName: "Cases" */ "../views/Cases.vue")
+    },
+    {
+        path: "/requests",
+        name: "Requests",
+        meta: {
+            requiresAuth: true
+        },
+        component: () =>
+            import ( /* webpackChunkName: "Cases" */ "../views/Requests.vue")
     }
 ]
 

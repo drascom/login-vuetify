@@ -56,7 +56,7 @@
       </v-flex>
       <v-flex xs12 sm3>
         <router-link :to="{ name: 'NewMemberList', params: { type: 'uye' } }">
-          <v-card  color="grey lighten-1" class=" ma-0">
+          <v-card color="grey lighten-1" class=" ma-0">
             <v-btn icon>
               <v-icon>mdi-account</v-icon>
             </v-btn>
@@ -70,7 +70,7 @@
         </router-link>
       </v-flex>
       <v-flex xs12>
-        <router-link :to="{ name: 'Cases' }">
+        <router-link :to="{ name: 'Requests' }">
           <v-layout row wrap>
             <v-flex xs12 sm3>
               <v-alert border="left" icon="mdi-plus" outlined type="info">

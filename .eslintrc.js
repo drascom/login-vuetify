@@ -12,6 +12,12 @@ module.exports = {
         "no-debugger": process.env.NODE_ENV === "production" ? "warn" : "off",
         "no-mixed-spaces-and-tabs": 0,
         "for-direction": 0,
-        quotes: ["warn", "double"]
+        quotes: ["warn", "double"],
+        "vue/valid-v-slot": [
+            "error",
+            {
+                allowModifiers: true
+            }
+        ]
     }
 }

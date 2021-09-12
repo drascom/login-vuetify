@@ -54,7 +54,7 @@ const vuetify = new Vuetify({
 Vue.use(Vuetify)
 Vue.use(TiptapVuetifyPlugin, {
     vuetify,
-    iconsGroup: "md"
+    iconsGroup: "mdi"
 })
 Vue.use(VuetifyConfirm, {
     vuetify

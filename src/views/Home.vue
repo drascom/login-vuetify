@@ -6,7 +6,7 @@
           class="v-image__image v-image__image--cover"
           style='background-image: url("/logo.png"); background-position: center center;'
         ></div>
-        <v-img src="/dad/logo.png" class="my-3" contain height="200"></v-img>
+        <v-img :src="logo" class="my-3" contain height="200"></v-img>
       </v-flex>
 
       <v-flex mb-4>
@@ -39,6 +39,11 @@
 
 <script>
 export default {
+  data() {
+    return {
+      logo: require("@/assets/logo.png")
+    }
+  },
   methods: {
     step(val) {
       this.$emit("step", val)
