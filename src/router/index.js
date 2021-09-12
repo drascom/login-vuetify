@@ -10,12 +10,14 @@ Vue.use(VueRouter)
 const routes = [{
         path: "/",
         name: "Home",
-        component: Home
+        component: Home,
+        redirect: "/login"
     },
     {
         path: "/login",
         name: "Login",
-        component: Login
+        component: Login,
+        props: true
     },
     {
         path: "/dashboard",
@@ -54,8 +56,8 @@ const routes = [{
             import ( /* webpackChunkName: "Members" */ "../views/Members.vue")
     },
     {
-        path: "/members/:id?",
-        name: "EditMember",
+        path: "/members/:type?",
+        name: "NewMemberList",
         meta: {
             requiresAuth: true
         },

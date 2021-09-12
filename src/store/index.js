@@ -19,11 +19,27 @@ const getters = {
     collections: (state) => {
         return state.collections
     },
+    members: (state) => {
+        return state.collections.members
+    },
+
     countDuyurular: (state) => {
         return state.collections.duyurular.length
     },
     countMembers: (state) => {
-        return state.collections.members.length
+        return state.collections.members.filter((item) => {
+            return item.role == "uye"
+        }).length
+    },
+    countModerators: (state) => {
+        return state.collections.members.filter((item) => {
+            return item.role == "moderator"
+        }).length
+    },
+    countAdmins: (state) => {
+        return state.collections.members.filter((item) => {
+            return item.role == "admin"
+        }).length
     },
     countTeams: (state) => {
         return state.collections.teams.length

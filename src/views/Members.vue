@@ -14,7 +14,7 @@
         <v-card-text>
           <v-form class="px-3" ref="form" v-model="isFormValid">
             <v-select
-              :items="['Admin', 'Moderator', 'Üye']"
+              :items="['moderator', 'uye']"
               label="Yetki Durumu"
               outlined
               v-model="form.role"
@@ -47,6 +47,15 @@
               v-model="form.email"
               prepend-inner-icon="email"
               :rules="emailRules"
+            />
+            <v-textarea
+              required
+              type="text"
+              outlined
+              filled
+              placeholder="not yazınız"
+              v-model="form.note"
+              prepend-inner-icon="pen"
             />
             <tags
               v-model="form.linked"
@@ -114,7 +123,7 @@
           </span>
         </v-layout>
       </v-layout>
-      <v-list>
+      <v-list dense>
         <v-card class="my-4" v-for="(item, index) in filteredList" :key="index">
           <v-list-item
             :key="index"
@@ -123,19 +132,53 @@
           >
             <v-list-item-content>
               <v-layout row wrap class="mt-1 ml-1">
-                <v-flex xs12 sm6>
+                <v-flex xs12 sm5 class="mb-1">
                   <v-icon>
                     drag_indicator
                   </v-icon>
                   {{ item.name }} ({{ item.role }})
                 </v-flex>
-                <v-flex xs12 sm6>
-                  <v-icon small left>mdi-phone</v-icon
-                  >{{ item.phone || " - Yok - " }}
+                <v-flex xs12 sm2 class="my-1">
+                  <a
+                    :href="`https://api.whatsapp.com/send?phone=${item.phone}`"
+                    class="mr-3"
+                    v-if="item.phone"
+                  >
+                    <v-btn icon elevation="4">
+                      <v-icon color="green accent-2">
+                        mdi-whatsapp
+                      </v-icon>
+                    </v-btn>
+                  </a>
+                  <v-icon v-else color="gray " class="mr-6">
+                    mdi-whatsapp
+                  </v-icon>
+                  <a :href="`tel:+${item.phone}`" v-if="item.phone">
+                    <v-btn icon elevation="4">
+                      <v-icon color="blue accent-2">mdi-phone </v-icon>
+                    </v-btn>
+                  </a>
+                  <v-icon v-else color="gray accent-2">mdi-phone </v-icon>
+                </v-flex>
+                <v-flex xs12 sm5 class="my-1">
+                  <a
+                    v-if="item.email"
+                    :href="`mailto:${item.email}`"
+                    style="text-decoration:none;"
+                  >
+                    <v-icon color="cyan accent-2" left>mdi-email </v-icon>
+                    {{ item.email }}
+                  </a>
                 </v-flex>
               </v-layout>
-
-              <v-list-item-subtitle v-if="item.linked" @click="editPost(item)">
+              <v-list-item-subtitle>
+                {{ item.note }}
+              </v-list-item-subtitle>
+              <v-list-item-subtitle
+                v-if="item.linked"
+                @click="editPost(item)"
+                class="my-1"
+              >
                 <template v-for="(link, i) in item.linked">
                   <v-chip small class="mt-4 mr-2" :key="i">
                     {{ link.display }}
@@ -184,6 +227,7 @@ export default {
   components: {
     tags
   },
+  props: ["type"],
   data() {
     return {
       search: "",
@@ -212,7 +256,26 @@ export default {
       ]
     }
   },
-
+  computed: {
+    ...mapState({
+      members: (state) => state.collections.members,
+      teams: (state) => state.collections.teams
+    }),
+    filterByType() {
+      if (this.type) {
+        return this.members.filter((item) => {
+          return item.role == this.type
+        })
+      } else {
+        return this.members
+      }
+    },
+    filteredList() {
+      return this.filterByType.filter((item) => {
+        return item.name.toLowerCase().includes(this.search.toLowerCase())
+      })
+    }
+  },
   methods: {
     ...mapActions(["getAllItems", "save", "delete"]),
     ...helpers,
@@ -291,7 +354,6 @@ export default {
         if (linked && linked.length >= 0) {
           let complete = await Promise.all(
             linked.map(async (item) => {
-              console.log("map item", item)
               let team = {
                 _id: item._id,
                 link: "teams",
@@ -325,23 +387,15 @@ export default {
       this.closeForm()
     }
   },
-  computed: {
-    ...mapState({
-      members: (state) => state.collections.members,
-      teams: (state) => state.collections.teams
-    }),
-    filteredList() {
-      return this.members.filter((item) => {
-        return item.name.toLowerCase().includes(this.search.toLowerCase())
-      })
-    }
-  },
+
   async mounted() {
     if (!this.members || this.members.length <= 0) {
       await this.getAllItems({
         parent: "collections",
         child: "members",
-        data: ""
+        data: {
+          sort: { name: 1 }
+        }
       })
     }
     if (!this.teams || this.teams.length <= 0) {

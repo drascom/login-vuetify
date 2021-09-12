@@ -91,7 +91,7 @@ export default {
                 data: payload
             })
             .then((response) => {
-                if (response.data) {
+                if (response && response.data) {
                     console.log("register", response)
                     commit("snackbar/success", response.data.name + " kaydınız alındı.")
                     return true
@@ -99,6 +99,9 @@ export default {
                     commit("snackbar/error", "Formda hata  " + response)
                     return false
                 }
+            })
+            .catch((error) => {
+                commit("snackbar/error", "Formda hata  " + error)
             })
     },
     forgot({ commit }, payload) {

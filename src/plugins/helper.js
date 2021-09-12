@@ -33,4 +33,5 @@ export default {
     uppercase(val) {
         return val.toUpperCase()
     }
+
 }

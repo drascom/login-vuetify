@@ -59,4 +59,16 @@ Vue.use(TiptapVuetifyPlugin, {
 Vue.use(VuetifyConfirm, {
     vuetify
 })
+Vue.directive("uppercase", {
+    update(el) {
+        const sourceValue = el.getElementsByTagName("input")[0].value
+        const newValue = sourceValue.toUpperCase()
+
+        if (sourceValue !== newValue) {
+            el.getElementsByTagName("input")[0].value = newValue
+            el = el.getElementsByTagName("input")[0]
+            el.dispatchEvent(new Event("input", { bubbles: true }))
+        }
+    }
+})
 export default vuetify

@@ -35,4 +35,7 @@ export default {
 .code input {
   text-transform: uppercase;
 }
+a{
+ text-decoration:none;
+}
 </style>

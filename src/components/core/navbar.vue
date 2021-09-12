@@ -2,7 +2,7 @@
   <div>
     <v-app-bar dense v-if="isLoggedin">
       <v-app-bar-nav-icon
-        @click="$router.push('Dashboard')"
+        @click="$router.push('/dashboard')"
       ></v-app-bar-nav-icon>
 
       <v-toolbar-title>Yönetime Hoşgeldiniz</v-toolbar-title>
@@ -45,15 +45,13 @@
         ></v-img>
       </template>
 
-      <v-app-bar-title>DAD Duyuru Panosu</v-app-bar-title>
-
       <v-spacer></v-spacer>
-      <v-btn text @click="goToHome()" v-if="$route.fullPath == '/login'">
+      <!-- <v-btn text @click="goToHome()" v-if="$route.fullPath == '/login'">
         <v-icon left>mdi-home</v-icon>AnaSayfa
       </v-btn>
       <v-btn text @click="goToLogin()" v-else>
         <v-icon left>mdi-account</v-icon>Giriş
-      </v-btn>
+      </v-btn> -->
     </v-app-bar>
   </div>
 </template>

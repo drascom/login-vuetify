@@ -1,6 +1,9 @@
 <template>
   <v-container class="fill-height" fluid>
-    <v-row align="center" justify="center">
+    <v-slide-y-transition hide-on-leave>
+      <home @step="setStep" v-if="intro"></home>
+    </v-slide-y-transition>
+    <v-row v-if="!intro" align="center" justify="center">
       <v-col cols="12" sm="8" md="8">
         <v-card class="elevation-12">
           <v-window v-model="step">
@@ -35,6 +38,7 @@
                         :type="!showPass ? 'text' : 'password'"
                         :append-icon="!showPass ? 'mdi-eye' : 'mdi-eye-off'"
                         @click:append="showPass = !showPass"
+                        v-on:keyup="pressLogin"
                       />
                     </v-form>
                     <h3 class="text-center mt-4" @click="step = 3">
@@ -117,10 +121,20 @@
                         color="teal accent-3"
                         v-model="registerData.email"
                       />
+                      <v-text-field
+                        label="Telefon Numaranız"
+                        name="phone"
+                        :rules="inputRules"
+                        autocomplete="new-password"
+                        prepend-icon="phone"
+                        type="text"
+                        color="teal accent-3"
+                        v-model="registerData.phone"
+                      />
 
                       <v-text-field
                         id="password"
-                        label="Şifre"
+                        label="Bir Şifre Oluşturun"
                         name="password"
                         :rules="inputRules"
                         autocomplete="off"
@@ -130,6 +144,7 @@
                         :type="showPass ? 'text' : 'password'"
                         :append-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
                         @click:append="showPass = !showPass"
+                        v-on:keyup="pressRegister"
                       />
                     </v-form>
                   </v-card-text>
@@ -244,6 +259,7 @@
                         :type="showPass ? 'text' : 'password'"
                         :append-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
                         @click:append="showPass = !showPass"
+                        v-on:keyup="pressNewPassword"
                       />
                     </v-form>
                     <div class="text-center  mb-3">
@@ -312,16 +328,20 @@
 <script>
 import { mapActions } from "vuex"
 import helpers from "@/plugins/helper.js"
+import home from "@/views/Home"
 export default {
   name: "Login",
-
+  components: {
+    home
+  },
   data: () => ({
     error: "",
-    step: 1,
+    intro: true,
     isFormValid: false,
     isForgetFormValid: false,
     isNewPasswordValid: false,
     token: "",
+    step: 6,
     memberId: "",
     newPassword: "222222",
     showPass: true,
@@ -344,7 +364,7 @@ export default {
       name: "",
       password: "",
       email: "",
-      role: "Üye",
+      role: "uye",
       published: true
     }
   }),
@@ -370,7 +390,25 @@ export default {
   methods: {
     ...helpers,
     ...mapActions(["login", "register", "forgot", "check"]),
-
+    setStep(e) {
+      this.intro = false
+      this.step = e
+    },
+    pressLogin(e) {
+      if (e.keyCode === 13) {
+        this.handleSingIn()
+      }
+    },
+    pressRegister(e) {
+      if (e.keyCode === 13) {
+        this.handleSingUp()
+      }
+    },
+    pressNewPassword(e) {
+      if (e.keyCode === 13) {
+        this.handleUpdate()
+      }
+    },
     handleSingIn() {
       this.login({
         parent: "collections",
@@ -403,8 +441,18 @@ export default {
       }
     },
     async handleSingUp() {
-      let result = await this.register(this.registerData)
+      let result = await this.register({
+        type: "register",
+        ...this.registerData
+      })
       result ? (this.step = 1) : ""
+      this.registerData = {
+        name: "",
+        password: "",
+        email: "",
+        role: "uye",
+        published: true
+      }
     },
     async handleUpdate() {
       let token = await this.check({

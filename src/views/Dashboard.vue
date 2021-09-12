@@ -6,9 +6,9 @@
           Toplam 45 durum çözüldü.Tebrikler</v-alert
         >
       </v-flex>
-      <v-flex xs12 sm4>
+      <v-flex xs12 sm3>
         <router-link :to="{ name: 'Duyurular' }">
-          <v-card dark color="primary" class="white--text ma-0">
+          <v-card dark color="grey darken-2" class="white--text ma-0">
             <v-btn icon>
               <v-icon>mdi-bullhorn-outline</v-icon>
             </v-btn>
@@ -22,9 +22,9 @@
         </router-link>
       </v-flex>
 
-      <v-flex xs12 sm4>
+      <v-flex xs12 sm3>
         <router-link :to="{ name: 'Teams' }">
-          <v-card dark color="secondary" class="white--text ma-0">
+          <v-card dark color="grey darken-1" class="white--text ma-0">
             <v-btn icon>
               <v-icon>mdi-microsoft-teams</v-icon>
             </v-btn>
@@ -37,9 +37,26 @@
           </v-card>
         </router-link>
       </v-flex>
-      <v-flex xs12 sm4>
-        <router-link :to="{ name: 'Members' }">
-          <v-card dark color="cyan" class="white--text ma-0">
+      <v-flex xs12 sm3>
+        <router-link
+          :to="{ name: 'NewMemberList', params: { type: 'moderator' } }"
+        >
+          <v-card dark color="grey" class="ma-0">
+            <v-btn icon>
+              <v-icon>mdi-account</v-icon>
+            </v-btn>
+
+            <v-card-text class="text-center">
+              <p class="headline">Adminler</p>
+
+              <p class="body-2">Aktif Üye : {{ countModerators }}</p>
+            </v-card-text>
+          </v-card>
+        </router-link>
+      </v-flex>
+      <v-flex xs12 sm3>
+        <router-link :to="{ name: 'NewMemberList', params: { type: 'uye' } }">
+          <v-card  color="grey lighten-1" class=" ma-0">
             <v-btn icon>
               <v-icon>mdi-account</v-icon>
             </v-btn>
@@ -55,7 +72,7 @@
       <v-flex xs12>
         <router-link :to="{ name: 'Cases' }">
           <v-layout row wrap>
-            <v-flex xs12 sm4>
+            <v-flex xs12 sm3>
               <v-alert border="left" icon="mdi-plus" outlined type="info">
                 Toplam 45 durum bildirildi
               </v-alert>
@@ -85,7 +102,12 @@ export default {
     return {}
   },
   computed: {
-    ...mapGetters(["countDuyurular", "countMembers", "countTeams"])
+    ...mapGetters([
+      "countDuyurular",
+      "countMembers",
+      "countModerators",
+      "countTeams"
+    ])
   },
   methods: {
     ...mapActions(["getAllItems", "save", "delete"])
@@ -101,7 +123,7 @@ export default {
       child: "cities",
       data: { sort: { name: 1 } }
     })
-     await this.getAllItems({
+    await this.getAllItems({
       parent: "collections",
       child: "teams",
       data: { sort: { name: 1 } }
