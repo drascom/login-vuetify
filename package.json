@@ -10,6 +10,7 @@
     "dependencies": {
         "axios": "^0.21.1",
         "core-js": "^3.4.3",
+        "run": "^1.4.0",
         "tiptap-vuetify": "^2.24.0",
         "v-snackbars": "^3.2.4",
         "vue": "^2.6.10",

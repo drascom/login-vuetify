@@ -14,7 +14,7 @@ module.exports = {
         "for-direction": 0,
         quotes: ["warn", "double"],
         "vue/valid-v-slot": [
-            "error",
+            "off",
             {
                 allowModifiers: true
             }

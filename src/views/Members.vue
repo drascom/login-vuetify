@@ -61,7 +61,8 @@
               v-model="form.linked"
               :list="teams"
               label="Takımlar"
-              :multi="true"
+              :multiple="form.role !== 'uye'"
+              :chips="form.role !== 'uye'"
               table="team"
             ></tags>
             <v-row class="justify-end align-center ma-2">
@@ -133,10 +134,10 @@
             <v-list-item-content>
               <v-layout row wrap class="mt-1 ml-1">
                 <v-flex xs12 sm5 class="mb-1">
-                  <v-icon>
-                    drag_indicator
-                  </v-icon>
-                  {{ item.name }} ({{ item.role }})
+                  <v-list-item-title>
+                    <v-icon> drag_indicator </v-icon>{{ item.name }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle class="ml-6">{{ item.role }} </v-list-item-subtitle>
                 </v-flex>
                 <v-flex xs12 sm2 class="my-1">
                   <a
@@ -222,11 +223,14 @@ import { mapActions } from "vuex"
 import { mapState } from "vuex"
 import helpers from "@/plugins/helper"
 import tags from "@/components/ui/autocomplete.vue"
+import init from "@/components/helper/init.vue"
+
 export default {
   name: "Members",
   components: {
     tags
   },
+  mixins: [init],
   props: ["type"],
   data() {
     return {
@@ -350,6 +354,7 @@ export default {
           child: "teammember",
           data: { filter: { "member._id": savedMember.data._id } }
         })
+
         //her bir takım için üye adıyla ilişki kaydet
         if (linked && linked.length >= 0) {
           let complete = await Promise.all(
@@ -385,25 +390,6 @@ export default {
       this.isLoading = false
       this.loadingText = ""
       this.closeForm()
-    }
-  },
-
-  async mounted() {
-    if (!this.members || this.members.length <= 0) {
-      await this.getAllItems({
-        parent: "collections",
-        child: "members",
-        data: {
-          sort: { name: 1 }
-        }
-      })
-    }
-    if (!this.teams || this.teams.length <= 0) {
-      await this.getAllItems({
-        parent: "collections",
-        child: "teams",
-        data: ""
-      })
     }
   }
 }

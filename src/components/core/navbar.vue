@@ -62,10 +62,10 @@ import { mapGetters } from "vuex"
 export default {
   name: "navBar",
   computed: {
-    ...mapGetters(["isLoggedin", "user/userData"])
+    ...mapGetters(["isLoggedin", "userData"])
   },
   methods: {
-    ...mapMutations("user", ["logout"]),
+    ...mapMutations(["logout"]),
     goToLogin() {
       this.$router.push("/login")
     },

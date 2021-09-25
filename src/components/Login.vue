@@ -370,7 +370,7 @@ export default {
   }),
   computed: {
     isLoggedin() {
-      return this.$store.state.user.isLoggedin
+      return this.$store.state.isLoggedin
     }
   },
   watch: {

@@ -2,27 +2,40 @@ import Vue from "vue"
 import Vuex from "vuex"
 
 import modules from "@/store/modules"
+import mutations from "@/store/mutations"
 import actions from "@/store/actions"
 
 Vue.use(Vuex)
-
+const state = () => {
+    return {
+        userData: JSON.parse(localStorage.getItem("user")) || false,
+        isLoggedin: JSON.parse(localStorage.getItem("api-key")) || false,
+        isLoginFailure: false,
+        newUser: false
+    }
+}
 const getters = {
     isLoggedin: (state) => {
-        return state.user.isLoggedin
+        return state.isLoggedin
     },
     user: (state) => {
-        return state.user.userData
+        return state.userData
     },
     isLoginFailure: (state) => {
-        return state.user.isLoginFailure
+        return state.isLoginFailure
     },
     collections: (state) => {
         return state.collections
     },
+    requests: (state) => {
+        return state.collections.requests
+    },
     members: (state) => {
         return state.collections.members
     },
-
+    getMember: (state) => (id) => {
+        return state.collections.members.filter((member) => member._id === id)[0]
+    },
     countDuyurular: (state) => {
         return state.collections.duyurular.length
     },
@@ -45,14 +58,9 @@ const getters = {
         return state.collections.teams.length
     }
 }
-const mutations = {
-    SET_ITEMS(state, payload) {
-        state[payload.parent][payload.child] = payload.respData
-        state.total = payload.respData.length
-    }
-}
 
 export default new Vuex.Store({
+    state,
     getters,
     mutations,
     actions,

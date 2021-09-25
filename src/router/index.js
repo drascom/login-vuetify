@@ -1,3 +1,4 @@
+/* eslint-disable vue/valid-v-slot */
 import Vue from "vue"
 import VueRouter from "vue-router"
 import store from "@/store"
@@ -38,13 +39,22 @@ const routes = [{
             import ( /* webpackChunkName: "Duyurular" */ "../views/Duyurular.vue")
     },
     {
-        path: "/teams",
-        name: "Teams",
+        path: "/cities",
+        name: "Cities",
         meta: {
             requiresAuth: true
         },
         component: () =>
-            import ( /* webpackChunkName: "Teams" */ "../views/Teams.vue")
+            import ( /* webpackChunkName: "Cities" */ "../views/Cities.vue")
+    },
+    {
+        path: "/city",
+        name: "City",
+        meta: {
+            requiresAuth: true
+        },
+        component: () =>
+            import ( /* webpackChunkName: "City" */ "../views/City.vue")
     },
     {
         path: "/members",
@@ -99,8 +109,8 @@ router.beforeEach((to, from, next) => {
     const user = window.localStorage.getItem("user")
     const lastPage = window.localStorage.getItem("last-page")
     const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
-    store.state.user.isLoggedin = token ? true : false
-    store.state.user.userData = user ? user : false
+    store.state.isLoggedin = token ? true : false
+    store.state.userData = user ? user : false
     if (requiresAuth) {
         if (to.fullPath === "/login") {
             if (token) {

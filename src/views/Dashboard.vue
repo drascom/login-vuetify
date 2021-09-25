@@ -23,7 +23,7 @@
       </v-flex>
 
       <v-flex xs12 sm3>
-        <router-link :to="{ name: 'Teams' }">
+        <router-link :to="{ name: 'Cities' }">
           <v-card dark color="grey darken-1" class="white--text ma-0">
             <v-btn icon>
               <v-icon>mdi-microsoft-teams</v-icon>
@@ -95,12 +95,14 @@
 </template>
 
 <script>
-import { mapActions } from "vuex"
 import { mapGetters } from "vuex"
+import init from "@/components/helper/init.vue"
+
 export default {
   data() {
     return {}
   },
+  mixins: [init],
   computed: {
     ...mapGetters([
       "countDuyurular",
@@ -109,30 +111,8 @@ export default {
       "countTeams"
     ])
   },
-  methods: {
-    ...mapActions(["getAllItems", "save", "delete"])
-  },
   async mounted() {
-    await this.getAllItems({
-      parent: "collections",
-      child: "members",
-      data: ""
-    })
-    await this.getAllItems({
-      parent: "collections",
-      child: "cities",
-      data: { sort: { name: 1 } }
-    })
-    await this.getAllItems({
-      parent: "collections",
-      child: "teams",
-      data: { sort: { name: 1 } }
-    })
-    await this.getAllItems({
-      parent: "collections",
-      child: "duyurular",
-      data: { sort: { _created: 1 } }
-    })
+    init
   }
 }
 </script>

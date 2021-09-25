@@ -16,7 +16,7 @@ const actions = {
             .login(payload)
             .then(async(response) => {
                 commit("SET_USER", response.data)
-                localStorage.setItem("user", JSON.stringify(response.data))
+                localStorage.setItem("user", JSON.stringify(response.data[0]))
                 localStorage.setItem("api_key", JSON.stringify(response.data.api_key))
                 return response
             })

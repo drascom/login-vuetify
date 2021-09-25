@@ -1,5 +1,6 @@
 <template>
   <v-container class="mb-2">
+    <init></init>
     <v-slide-y-transition hide-on-leave>
       <v-card v-if="cityEditDialog">
         <v-card-title>
@@ -135,14 +136,21 @@
       </v-card>
     </v-dialog>
     <template v-if="!cityEditDialog">
-      <v-toolbar fixed>
-        <v-toolbar-title class="grey--text font-weight-bold">
-          Takımlar
-        </v-toolbar-title>
-
+      <v-toolbar fixed dark>
+        <v-text-field
+          type="text"
+          dense
+          solo-inverted
+          placeholder="Arama"
+          v-model="search"
+          hide-details
+          prepend-inner-icon="mdi-magnify"
+          single-line
+        />
         <v-spacer></v-spacer>
         <v-btn
           :icon="$vuetify.breakpoint.xs"
+          small
           color="red"
           class="mx-2"
           dark
@@ -152,16 +160,7 @@
           {{ $vuetify.breakpoint.smAndUp ? "Ekle" : "" }}
         </v-btn>
       </v-toolbar>
-      <v-text-field
-        type="text"
-        dense
-        filled
-        placeholder="Arama"
-        v-model="search"
-        hide-details
-        prepend-inner-icon="mdi-magnify"
-        single-line
-      />
+
       <v-layout row justify-center v-if="cities.length < 1" class="pt-12">
         <v-layout column align-center>
           <span
@@ -188,7 +187,15 @@
                   <v-icon>
                     drag_indicator
                   </v-icon>
-                  {{ item.name }}
+                  <v-btn
+                    text
+                    @click="
+                      $router.push({ name: 'City', params: { id: item._id } })
+                    "
+                  >
+                    {{ item.name }}
+                  </v-btn>
+                 <span class="grey--text text-subtitle-2 ml-8"> <b>Admin : </b> {{ item.city_admin.display}}</span>
                 </v-flex>
               </v-layout>
               <v-list-item-subtitle v-if="item.teams && item.teams.length">
@@ -220,7 +227,7 @@
                 >
               </v-list-item-action-text>
               <div class="d-flex flew-row">
-                <!-- <v-btn icon small class="project ma-1" @click="editCity(item)">
+               <v-btn icon small class="project ma-1" @click="editCity(item)">
                   <v-icon>edit</v-icon>
                 </v-btn>
                 <v-btn
@@ -230,7 +237,7 @@
                   class="project ma-1"
                 >
                   <v-icon>delete</v-icon>
-                </v-btn> -->
+                </v-btn>
               </div>
             </v-list-item-action>
           </v-list-item>
@@ -242,9 +249,10 @@
 
 <script>
 /* eslint-disable no-unused-vars */
-
+/* eslint-disable vue/valid-v-slot */
 import { mapActions } from "vuex"
 import { mapState } from "vuex"
+import init from "@/components/helper/init.vue"
 
 import tags from "@/components/ui/autocomplete.vue"
 
@@ -264,7 +272,8 @@ const defaults = {
 export default {
   name: "Teams",
   components: {
-    tags
+    tags,
+    init
   },
   data() {
     return {
@@ -446,34 +455,6 @@ export default {
           this.closeForm()
         }
       }
-    }
-  },
-
-  async beforeMount() {
-    if (!this.cities || this.cities.length <= 0) {
-      await this.getAllItems({
-        parent: "collections",
-        child: "cities",
-        data: {
-          sort: { name: 1 }
-        }
-      })
-    }
-    if (!this.teams || this.teams.length <= 0) {
-      await this.getAllItems({
-        parent: "collections",
-        child: "teams",
-        data: {
-          sort: { name: 1 }
-        }
-      })
-    }
-    if (!this.members || this.members.length <= 0) {
-      await this.getAllItems({
-        parent: "collections",
-        child: "members",
-        data: ""
-      })
     }
   }
 }

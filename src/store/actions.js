@@ -66,7 +66,7 @@ export default {
         return api[payload.parent].all(payload).then(
             (response) => {
                 if (response.data) {
-                    commit("user/SET_USER", response.data[0], { root: true })
+                    commit("SET_USER", response.data[0], { root: true })
                     localStorage.setItem("user", JSON.stringify(response.data[0]))
                     localStorage.setItem("api_key", JSON.stringify(response.data[0]._id))
                     commit("snackbar/success", "Giriş başarılı")
