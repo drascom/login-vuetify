@@ -110,7 +110,7 @@ router.beforeEach((to, from, next) => {
     const lastPage = window.localStorage.getItem("last-page")
     const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
     store.state.isLoggedin = token ? true : false
-    store.state.userData = user ? user : false
+    store.state.memberData = user ? JSON.parse(user) : false
     if (requiresAuth) {
         if (to.fullPath === "/login") {
             if (token) {

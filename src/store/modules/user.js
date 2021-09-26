@@ -48,7 +48,7 @@ const mutations = {
         if (payload.published) {
             state.isLoggedin = true
         }
-        state.userData = payload
+        // state.userData = payload
     },
     logout(state) {
         localStorage.removeItem("api_key")

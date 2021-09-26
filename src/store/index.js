@@ -8,7 +8,7 @@ import actions from "@/store/actions"
 Vue.use(Vuex)
 const state = () => {
     return {
-        userData: JSON.parse(localStorage.getItem("user")) || false,
+        memberData: JSON.parse(JSON.stringify(localStorage.getItem("user"))) || false,
         isLoggedin: JSON.parse(localStorage.getItem("api-key")) || false,
         isLoginFailure: false,
         newUser: false
@@ -19,7 +19,7 @@ const getters = {
         return state.isLoggedin
     },
     user: (state) => {
-        return state.userData
+        return state.memberData
     },
     isLoginFailure: (state) => {
         return state.isLoginFailure
@@ -32,6 +32,9 @@ const getters = {
     },
     members: (state) => {
         return state.collections.members
+    },
+    cases: (state) => {
+        return state.collections.cases
     },
     getMember: (state) => (id) => {
         return state.collections.members.filter((member) => member._id === id)[0]

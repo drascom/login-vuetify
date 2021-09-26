@@ -6,7 +6,7 @@ export default {
         if (payload.published) {
             state.isLoggedin = true
         }
-        state.userData = payload
+        state.memberData = payload
     },
     logout(state) {
         localStorage.removeItem("api_key")

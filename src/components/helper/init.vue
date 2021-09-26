@@ -48,6 +48,20 @@ export default {
         data: ""
       })
     }
+    if (!this.cases || this.cases.length <= 0) {
+      await this.getAllItems({
+        parent: "collections",
+        child: "cases",
+        data: ""
+      })
+    }
+    if (!this.requests || this.requests.length <= 0) {
+      await this.getAllItems({
+        parent: "collections",
+        child: "requests",
+        data: ""
+      })
+    }
   }
 }
 </script>

@@ -30,7 +30,7 @@
 
           <v-list>
             <v-list-item-group v-model="selectedMenu" mandatory color="indigo">
-              <v-list-item v-for="(item, i) in items" :key="i">
+              <v-list-item v-for="(item, i) in menuItems" :key="i">
                 <v-list-item-icon>
                   <v-icon v-text="item.icon"></v-icon>
                 </v-list-item-icon>
@@ -46,8 +46,11 @@
       <v-col cols="12" sm="9">
         <v-window v-model="selectedMenu" reverse>
           <v-window-item :value="0">
-            <v-card color="grey">
-              <requestList :cityId="searchId" />
+            <v-card tile flat color="">
+              <v-card-title v-if="isLoading">{{
+                isLoading ? "yükleniyor" : ""
+              }}</v-card-title>
+              <requestList :cityId="searchId" @getjob="setJob" />
             </v-card>
           </v-window-item>
           <v-window-item :value="1">
@@ -69,6 +72,7 @@
 <script>
 import init from "@/components/helper/init.vue"
 import { mapState } from "vuex"
+import { mapActions } from "vuex"
 
 export default {
   name: "city",
@@ -79,12 +83,17 @@ export default {
   },
   mixins: [init],
   data: () => ({
+    isLoading: false,
     postedId: "",
     userCityId: "",
     searchId: "",
     errors: [],
     selectedMenu: 0,
-    items: [
+    jobForm: {
+      request: {},
+      member: {}
+    },
+    menuItems: [
       {
         icon: "mdi-wifi",
         text: "İstekler"
@@ -102,14 +111,13 @@ export default {
 
   computed: {
     ...mapState({
-      user: (state) => JSON.parse(state.userData)
+      user: (state) => state.memberData
     }),
     cityAdmin() {
       return this.cities.find((item) => {
         return item.admin._id == this.user._id
       })
     },
-
     city() {
       let cities = this.cities.filter((item) => {
         return item._id == this.searchId
@@ -117,7 +125,36 @@ export default {
       return cities.length > 0 ? cities[0] : false
     }
   },
-  methods: {},
+  methods: {
+    ...mapActions(["getAllItems", "save", "delete"]),
+
+    async setJob(event) {
+      this.jobForm = {
+        request: {
+          _id: event._id,
+          link: "requests",
+          display: event.doctor_name.display
+        },
+        member: {
+          _id: this.user._id,
+          link: "members",
+          display: this.user.name
+        }
+      }
+      this.isLoading = true
+      let result = await this.save({
+        parent: "collections",
+        child: "cases",
+        data: this.jobForm
+      })
+      if (result.statusText) {
+        this.$store.commit("snackbar/success", "Görev Alındı.")
+      } else {
+        this.$store.commit("snackbar/error", "Bu göreve zaten gönüllüsünüz.")
+      }
+      this.isLoading = false
+    }
+  },
   mounted() {
     init
     this.postedId = this.$route.query.id
