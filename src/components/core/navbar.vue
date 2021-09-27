@@ -5,9 +5,10 @@
         @click="$router.push('/dashboard')"
       ></v-app-bar-nav-icon>
 
-      <v-toolbar-title>Yönetime Hoşgeldiniz</v-toolbar-title>
+      <v-toolbar-title>Sayın {{ user.name }} hoşgeldin</v-toolbar-title>
 
       <v-spacer></v-spacer>
+      <v-chip x-small outlined color="blue">Yetki : {{ user.role }} </v-chip>
       <div class="text-center">
         <v-menu offset-y rounded="lg">
           <template v-slot:activator="{ on, attrs }">
@@ -62,7 +63,7 @@ import { mapGetters } from "vuex"
 export default {
   name: "navBar",
   computed: {
-    ...mapGetters(["isLoggedin", "userData"])
+    ...mapGetters(["isLoggedin", "user"])
   },
   methods: {
     ...mapMutations(["logout"]),

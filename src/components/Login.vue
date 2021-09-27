@@ -11,13 +11,21 @@
               <v-row>
                 <v-col cols="12" md="8">
                   <v-card-text class="mt-12">
-                    <h1 class="text-center display-1 teal--text text--accent-3">
+                    <h2 class="text-center teal--text text--accent-3">
                       DAD <br />sistemine hoşgeldiniz.
-                    </h1>
+                    </h2>
 
                     <h4 class="text-center mt-4">
-                      Üye olduğunuz email adresini girin.
+                      Alttaki butonlara basarak farklı yetkilerle
+                      girebilirsiniz.
                     </h4>
+                    <v-divider></v-divider>
+                    <v-container class="my-6">
+                      <v-row justify="space-around">
+                        <v-btn @click="moderatorLogin()"> Yönetici Giriş</v-btn>
+                        <v-btn @click="memberLogin()"> Üye Giriş</v-btn>
+                      </v-row></v-container
+                    >
                     <v-form>
                       <v-text-field
                         label="Email"
@@ -78,9 +86,9 @@
                     </h5>
                   </v-card-text>
                   <div class="text-center">
-                    <v-btn rounded outlined dark @click="step--"
-                      >Giriş yap</v-btn
-                    >
+                    <v-btn rounded outlined dark @click="step--">
+                      Giriş yap
+                    </v-btn>
                   </div>
                 </v-col>
 
@@ -371,12 +379,17 @@ export default {
   computed: {
     isLoggedin() {
       return this.$store.state.isLoggedin
+    },
+    user() {
+      return this.$store.state.memberData
     }
   },
   watch: {
     isLoggedin(newValue) {
       if (newValue) {
-        this.$router.push("/dashboard")
+        this.user.role == "admin"
+          ? this.$router.push({ name: "Dashboard" })
+          : this.$router.push({ name: "City" })
       }
     },
     error(newValue) {
@@ -388,6 +401,16 @@ export default {
     }
   },
   methods: {
+    moderatorLogin() {
+      this.loginData.email = "moderator@dad.com"
+      this.loginData.password = "111111"
+      this.handleSingIn()
+    },
+    memberLogin() {
+      this.loginData.email = "uye@dad.com"
+      this.loginData.password = "111111"
+      this.handleSingIn()
+    },
     ...helpers,
     ...mapActions(["login", "register", "forgot", "check"]),
     setStep(e) {

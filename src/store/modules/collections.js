@@ -5,6 +5,7 @@ export default {
         users: [],
         members: [],
         teams: [],
+        teammember: [],
         cities: [],
         requests: [],
         cases: []

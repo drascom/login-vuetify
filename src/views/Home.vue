@@ -1,5 +1,19 @@
 <template>
   <v-container>
+    <v-dialog v-model="dialog">
+      <v-card class="mx-auto pt-12">
+        <v-card-text>
+          Degerli dostlar Sistemimiz henuz kurulum aşamasındadır.
+          <br />Sürekli güncellenmekte olup kullanıma hazır değildir. <br />
+          Sadece Ana sayfa en altta bulunan whatsapp istek formunu doldurup
+          Kopyala/kaydet butonuna basarak indireceğiniz resim dosyasını whatsapp
+          yardımlaşma gurubuna atabilirsiniz.
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="primary" @click="dialog = false"> Anladım</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-layout text-center wrap>
       <v-flex xs12>
         <div
@@ -34,6 +48,11 @@
         </v-btn>
       </v-col>
     </v-row>
+    <v-row>
+      <v-col cols="12" sm=4 class="mx-auto">
+        <v-btn block color="green " dark to="/form">Whatsapp İstek Formu</v-btn>
+      </v-col></v-row
+    >
   </v-container>
 </template>
 
@@ -41,9 +60,11 @@
 export default {
   data() {
     return {
+      dialog: true,
       logo: require("@/assets/logo.png")
     }
   },
+
   methods: {
     step(val) {
       this.$emit("step", val)

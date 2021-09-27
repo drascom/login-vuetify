@@ -11,7 +11,7 @@
       hide-overlay
     >
       <v-container height="90vh-70px">
-        <v-card v-if="cityEditDialog">
+        <!-- <v-card v-if="cityEditDialog">
           <v-card-title>
             <h2 class="subheading grey--text">
               Düzenle
@@ -56,11 +56,11 @@
               </v-row>
             </v-form>
           </v-card-text>
-        </v-card>
+        </v-card> -->
       </v-container>
     </v-navigation-drawer>
     <v-navigation-drawer
-      id="takımekledegistir"
+      id="takım düzenle"
       color="grey"
       :stateless="true"
       v-model="teamEditDialog"
@@ -82,6 +82,7 @@
             </v-btn>
             <v-spacer></v-spacer>
             <v-btn
+              :disabled="!city"
               elevation-6
               class="success mx-0 mt-3 "
               @click="saveTeam(selectedTeam)"
@@ -100,32 +101,13 @@
               label="Şehir Seç"
               table="cities"
               :disabled="disabled"
+              @input="console"
             ></tags>
-            <v-text-field
-              class="px-3"
-              outlined
-              type="text"
-              placeholder="Takım  Adı"
-              v-model="selectedTeam.name"
-              :rules="[(v) => !!v || 'Takım Adı boş olamaz.']"
-              v-uppercase
-            />
-            <v-divider class="mb-6"></v-divider>
             <tags
-              key="admin"
-              v-model="selectedTeam.admin"
-              :list="members"
-              label="Takım Admin"
-              table="members"
-              chips
-              small-chips
-              :rules="[(v) => !!v || 'En Az Bir kayıt seçiniz']"
-            ></tags>
-
-            <tags
+              v-if="!newTeam"
               key="member"
               v-model="selectedTeam.linked"
-              :list="members"
+              :list="filteredMembers"
               label="Üye Ekle"
               table="members"
               chips
@@ -135,6 +117,17 @@
               :hideselection="true"
             >
             </tags>
+            <v-text-field
+              readonly
+              v-else
+              class="px-3"
+              outlined
+              type="text"
+              placeholder="Takım  Adı"
+              v-model="selectedTeam.name"
+              :rules="[(v) => !!v || 'Takım Adı boş olamaz.']"
+              v-uppercase
+            />
           </v-card-text>
         </v-card>
       </v-container>
@@ -196,12 +189,6 @@
                     </v-icon>
                     {{ city.name }}
                   </v-btn>
-                  <span class="grey--text">
-                    {{
-                      city.teams && city.teams.length ? city.teams.length : "0"
-                    }}
-                    Takım
-                  </span>
                 </v-flex>
 
                 <v-flex
@@ -212,20 +199,15 @@
                 >
                   <v-fade-transition leave-absolute>
                     <span v-if="open" key="0">
-                      <v-btn
-                        outlined
-                        color="red"
-                        small
-                        class=" ma-1"
-                        @click="editCity(city)"
-                      >
-                        <v-icon small left>edit</v-icon> Düzenle
-                      </v-btn>
+                      {{
+                        city.teams && city.teams.length
+                          ? city.teams.length
+                          : "0"
+                      }}
+                      Takım
                     </span>
-                    <span v-if="!open" key="1" class=" text-subtitle-2">
-                      <span v-if="city.city_admin">
-                        <b>Admin : </b> {{ city.city_admin.display }}
-                      </span>
+                    <span v-if="!open" key="1" class="">
+                      <span> {{ getMemberCount(city) }} Üye </span>
                     </span>
                   </v-fade-transition>
                 </v-flex>
@@ -235,8 +217,13 @@
           <v-expansion-panel-content>
             <v-list>
               <v-list-item v-for="team in city.teams" :key="team._id" link>
-                <v-list-item-title v-text="team.display"></v-list-item-title>
-                {{ getMemberCount(team._id) }}
+                <v-list-item-title
+                  >{{ team.name }}
+                  <span class="grey--text ml-12 text-subtitle-1">
+                    {{ team.linked ? team.linked.length : "0" }} Üye
+                  </span>
+                </v-list-item-title>
+
                 <v-list-item-action class="flex-row">
                   <v-btn
                     text
@@ -284,8 +271,8 @@ const defaults = {
   cityEditDialog: false,
   isLoading: false,
   linked: [],
-  team: {},
-  city: {},
+  team: false,
+  city: false,
   newTeam: false
 }
 export default {
@@ -305,12 +292,22 @@ export default {
         return item.name.toLowerCase().includes(this.search.toLowerCase())
       })
     },
+    filteredMembers() {
+      const results = this.members.filter(({ _id: id1 }) => {
+        return !this.teammember.some((item) => {
+          return item.member._id == id1
+        })
+      })
+      console.log(results)
+      return results
+    },
     selectedCity: {
       get() {
         if (this.city && this.city._id) {
           let result = this.cities.filter((item) => {
             return item._id.includes(this.city._id)
           })
+
           return result.length >= 1 ? result[0] : this.city
         }
         return this.city
@@ -342,14 +339,27 @@ export default {
       })
       if (finded && finded.length > 0) return finded[0].name
     },
-    getMemberCount(id) {
-      let count = this.teams.filter((obj) => obj._id === id)
-      // console.log(count)
+    console(event) {
+      this.city = event
+      let number = this.selectedCity.teams.length + 1
+      this.team = {
+        city: {
+          _id: this.selectedCity._id,
+          link: "cities",
+          display: this.selectedCity.name
+        },
+        name: `${this.selectedCity.name} - ${number}`
+      }
+    },
+    getMemberCount(city) {
+      return city.teams.map((item) => {
+        return +item.linked.length
+      })[0]
     },
     closeForm() {
       Object.assign(this.$data, defaults)
-      this.city = {}
-      this.team = {}
+      this.city = false
+      this.team = false
     },
     editTeam(team, city) {
       console.log("edit gelen team", team)
@@ -399,14 +409,11 @@ export default {
       })
 
       if (newTeam.data) {
+        this.$store.commit("snackbar/success", "Takım Bilgisi kaydedildi")
         // sonra ilişki tablosunu kaydet
         this.saveLinkedMembers(newTeam.data)
-
-        this.updateCityTeam(newTeam.data)
       } else {
-        console.log(
-          "ilişki tablosu yada şehir kaydedilemedi çünkü takım kaydedilemedi"
-        )
+        this.$store.commit("snackbar/error", "Kaydedilemedi !")
       }
     },
     async saveLinkedMembers(teamData) {
@@ -447,7 +454,7 @@ export default {
       })
       this.getAllItems({
         parent: "collections",
-        child: "teams",
+        child: "cities",
         data: {
           sort: { name: 1 }
         }
@@ -455,47 +462,48 @@ export default {
       this.isLoading = false
       this.closeForm()
     },
-    async updateCityTeam(teamData) {
-      let exist = false
-      if (this.selectedCity.teams && this.selectedCity.teams.length > 0) {
-        this.selectedCity.teams.map((item) => {
-          if (item._id == teamData._id) {
-            exist = true
-            item.display = teamData.name
-          }
-        })
-      } else {
-        exist = true
-      }
-      if (!exist) {
-        if (this.selectedCity.teams.length > 0) {
-          console.log("team eklendi")
-          this.selectedCity.teams.push({
-            _id: teamData._id,
-            link: "teams",
-            display: teamData.name
-          })
-        } else {
-          console.log("team oluşturuldu")
-          this.selectedCity.teams = [
-            {
-              _id: teamData._id,
-              link: "teams",
-              display: teamData.name
-            }
-          ]
-        }
-      }
-      let result = await this.save({
-        parent: "collections",
-        child: "cities",
-        data: this.selectedCity
-      })
-      this.closeForm()
-      result
-        ? this.$store.commit("snackbar/success", "Takım Bilgisi kaydedildi")
-        : this.$store.commit("snackbar/error", "Kaydedilemedi !")
-    },
+    // kolleksiyondaki var olan array öğelerini değiştirme
+    // async updateCityTeam(teamData) {
+    //   let exist = false
+    //   if (this.selectedCity.teams && this.selectedCity.teams.length > 0) {
+    //     this.selectedCity.teams.map((item) => {
+    //       if (item._id == teamData._id) {
+    //         exist = true
+    //         item.display = teamData.name
+    //       }
+    //     })
+    //   } else {
+    //     exist = true
+    //   }
+    //   if (!exist) {
+    //     if (this.selectedCity.teams.length > 0) {
+    //       console.log("team eklendi")
+    //       this.selectedCity.teams.push({
+    //         _id: teamData._id,
+    //         link: "teams",
+    //         display: teamData.name
+    //       })
+    //     } else {
+    //       console.log("team oluşturuldu")
+    //       this.selectedCity.teams = [
+    //         {
+    //           _id: teamData._id,
+    //           link: "teams",
+    //           display: teamData.name
+    //         }
+    //       ]
+    //     }
+    //   }
+    //   let result = await this.save({
+    //     parent: "collections",
+    //     child: "cities",
+    //     data: this.selectedCity
+    //   })
+    //   this.closeForm()
+    //   result
+    //     ? this.$store.commit("snackbar/success", "Takım Bilgisi kaydedildi")
+    //     : this.$store.commit("snackbar/error", "Kaydedilemedi !")
+    // },
     async deleteItem(payload) {
       const res = await this.$confirm("Gerçekten Silmek İstiyor musunuz ?", {
         title: "Uyarı",

@@ -4,6 +4,7 @@ import VueRouter from "vue-router"
 import store from "@/store"
 import Home from "../views/Home.vue"
 import Login from "@/components/Login.vue"
+import Form from "@/components/requestForm.vue"
 
 Vue.use(VueRouter)
 
@@ -18,6 +19,11 @@ const routes = [{
         path: "/login",
         name: "Login",
         component: Login,
+        props: true
+    }, {
+        path: "/form",
+        name: "Form",
+        component: Form,
         props: true
     },
     {
