@@ -1,9 +1,7 @@
 <template>
   <div>
     <v-app-bar dense v-if="isLoggedin">
-      <v-app-bar-nav-icon
-        @click="$router.push('/dashboard')"
-      ></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="$router.push('/admin')"></v-app-bar-nav-icon>
 
       <v-toolbar-title>Sayın {{ user.name }} hoşgeldin</v-toolbar-title>
 
@@ -18,18 +16,16 @@
           </template>
 
           <v-list>
-            <v-list-item @click="$router.push('/dashboard')">
+            <v-list-item @click="$router.push('/admin')">
               <v-list-item-title> Anasayfa </v-list-item-title>
             </v-list-item>
             <v-list-item @click="$router.push('/duyurular')">
               <v-list-item-title> Duyurular </v-list-item-title>
             </v-list-item>
-            <v-list-item @click="$router.push('/teams')">
+            <v-list-item @click="$router.push('/dashboard')">
               <v-list-item-title> Takımlar </v-list-item-title>
             </v-list-item>
-            <v-list-item @click="$router.push('/members')">
-              <v-list-item-title> Üyeler </v-list-item-title>
-            </v-list-item>
+
             <v-list-item @click="doLogout()">
               <v-list-item-title>Çıkış</v-list-item-title>
             </v-list-item>

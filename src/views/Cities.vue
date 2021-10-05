@@ -352,9 +352,11 @@ export default {
       }
     },
     getMemberCount(city) {
-      return city.teams.map((item) => {
-        return +item.linked.length
-      })[0]
+      let count = 0
+      city.teams.map((item) => {
+        count += item.linked.length
+      })
+      return count
     },
     closeForm() {
       Object.assign(this.$data, defaults)

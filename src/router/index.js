@@ -20,20 +20,24 @@ const routes = [{
         name: "Login",
         component: Login,
         props: true
-    }, {
+    },
+    {
         path: "/form",
         name: "Form",
         component: Form,
         props: true
     },
     {
-        path: "/dashboard",
-        name: "Dashboard",
+        path: "/admin",
+        name: "AdminDashboard",
         meta: {
             requiresAuth: true
         },
         component: () =>
-            import ( /* webpackChunkName: "Dashboard" */ "../views/Dashboard.vue")
+            import (
+                /* webpackChunkName: "AdminDashboard" */
+                "../views/AdminDashboard.vue"
+            )
     },
     {
         path: "/duyurular",
@@ -54,13 +58,16 @@ const routes = [{
             import ( /* webpackChunkName: "Cities" */ "../views/Cities.vue")
     },
     {
-        path: "/city",
-        name: "City",
+        path: "/dashboard",
+        name: "UserDashboard",
         meta: {
             requiresAuth: true
         },
         component: () =>
-            import ( /* webpackChunkName: "City" */ "../views/City.vue")
+            import (
+                /* webpackChunkName: "UserDashboard" */
+                "../views/UserDashboard.vue"
+            )
     },
     {
         path: "/members",

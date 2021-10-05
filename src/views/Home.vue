@@ -1,17 +1,18 @@
 <template>
   <v-container>
-    <v-dialog v-model="dialog">
-      <v-card class="mx-auto pt-12">
-        <v-card-text>
+    <v-dialog
+      v-model="dialog"
+      :width="$vuetify.breakpoint.smAndUp ? '70%' : ''"
+    >
+      <v-card class="mx-auto pt-12 text-center  pa-4">
+        <v-card-text class="text-body-1 pa-4">
           Degerli dostlar Sistemimiz henuz kurulum aşamasındadır.
           <br />Sürekli güncellenmekte olup kullanıma hazır değildir. <br />
           Sadece Ana sayfa en altta bulunan whatsapp istek formunu doldurup
           Kopyala/kaydet butonuna basarak indireceğiniz resim dosyasını whatsapp
           yardımlaşma gurubuna atabilirsiniz.
         </v-card-text>
-        <v-card-actions>
-          <v-btn color="primary" @click="dialog = false"> Anladım</v-btn>
-        </v-card-actions>
+        <v-btn color="primary" @click="dialog = false"> Anladım</v-btn>
       </v-card>
     </v-dialog>
     <v-layout text-center wrap>
@@ -49,7 +50,7 @@
       </v-col>
     </v-row>
     <v-row>
-      <v-col cols="12" sm=4 class="mx-auto">
+      <v-col cols="12" sm="4" class="mx-auto">
         <v-btn block color="green " dark to="/form">Whatsapp İstek Formu</v-btn>
       </v-col></v-row
     >

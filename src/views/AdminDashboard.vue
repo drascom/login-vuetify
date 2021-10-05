@@ -54,6 +54,7 @@
           </v-card>
         </router-link>
       </v-flex>
+
       <v-flex xs12 sm3>
         <router-link :to="{ name: 'NewMemberList', params: { type: 'uye' } }">
           <v-card color="grey lighten-1" class=" ma-0">
@@ -87,6 +88,20 @@
                 Toplam 20 durum bekliyor.
               </v-alert>
             </v-flex>
+            <v-flex xs12>
+              <router-link :to="{ name: 'UserDashboard' }">
+                <v-card dark color="grey" class="ma-0">
+                  <v-btn icon>
+                    <v-icon>mdi-account</v-icon>
+                  </v-btn>
+
+                  <v-card-text class="text-left">
+                    <p class="headline">Kullanıcı Sayfası</p>
+                    <pre> {{ user }} </pre>
+                  </v-card-text>
+                </v-card>
+              </router-link>
+            </v-flex>
           </v-layout>
         </router-link>
       </v-flex>
@@ -108,7 +123,8 @@ export default {
       "countDuyurular",
       "countMembers",
       "countModerators",
-      "countTeams"
+      "countTeams",
+      "user"
     ])
   },
   async mounted() {

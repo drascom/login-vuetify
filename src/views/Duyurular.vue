@@ -122,7 +122,7 @@
 import { mapActions } from "vuex"
 import editor from "@/components/helper/contenteditor"
 export default {
-  name: "Dashboard",
+  name: "Duyurular",
   components: {
     editor
   },

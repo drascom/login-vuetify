@@ -388,8 +388,8 @@ export default {
     isLoggedin(newValue) {
       if (newValue) {
         this.user.role == "admin"
-          ? this.$router.push({ name: "Dashboard" })
-          : this.$router.push({ name: "City" })
+          ? this.$router.push({ name: "AdminDashboard" })
+          : this.$router.push({ name: "UserDashboard" })
       }
     },
     error(newValue) {
@@ -498,7 +498,9 @@ export default {
   },
   created() {
     if (this.isLoggedin) {
-      this.$router.push({ name: "Dashboard" })
+      this.user.role == "admin"
+        ? this.$router.push({ name: "AdminDashboard" })
+        : this.$router.push({ name: "UserDashboard" })
     }
   },
   mounted() {
