@@ -15,6 +15,14 @@ const state = () => {
     }
 }
 const getters = {
+    getOne: (state) => (param) => {
+        return state.collections[param.collection].find(
+            (item) => item._id === param.id
+        )
+    },
+    getAll: (state) => (collectionName) => {
+        return state.collections[collectionName]
+    },
     isLoggedin: (state) => {
         return state.isLoggedin
     },
@@ -24,11 +32,14 @@ const getters = {
     isLoginFailure: (state) => {
         return state.isLoginFailure
     },
-    collections: (state) => {
-        return state.collections
+    collections: (state) => (name) => {
+        return state.collections[name]
     },
     requests: (state) => {
         return state.collections.requests
+    },
+    messages: (state) => {
+        return state.collections.messages
     },
     members: (state) => {
         return state.collections.members

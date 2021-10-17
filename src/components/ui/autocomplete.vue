@@ -1,16 +1,16 @@
 <template>
-  <v-container fluid>
+  <v-container fluid class="pa-0">
     <v-autocomplete
+      class="px-0"
       v-model="selectedValue"
       :items="list"
       item-value="display"
       item-text="name"
-      outlined
       v-bind="attrs"
       v-on="listeners"
       return-object
       hide-selected
-      :menu-props="{ closeOnContentClick: true }"
+      :rules="[!!selectedValue || 'text']"
     >
       <template v-slot:selection="" v-if="hideselection"> </template>
     </v-autocomplete>

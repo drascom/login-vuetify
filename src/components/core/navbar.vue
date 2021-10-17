@@ -3,7 +3,7 @@
     <v-app-bar dense v-if="isLoggedin">
       <v-app-bar-nav-icon @click="$router.push('/admin')"></v-app-bar-nav-icon>
 
-      <v-toolbar-title>Sayın {{ user.name }} hoşgeldin</v-toolbar-title>
+      <v-toolbar-title></v-toolbar-title>
 
       <v-spacer></v-spacer>
       <v-chip x-small outlined color="blue">Yetki : {{ user.role }} </v-chip>
@@ -15,18 +15,25 @@
             </v-btn>
           </template>
 
-          <v-list>
+          <v-list dense>
             <v-list-item @click="$router.push('/admin')">
+              <v-icon left> mdi-home</v-icon>
               <v-list-item-title> Anasayfa </v-list-item-title>
             </v-list-item>
+
             <v-list-item @click="$router.push('/duyurular')">
-              <v-list-item-title> Duyurular </v-list-item-title>
+              <v-icon left>mdi-bell-alert-outline</v-icon>
+              <v-list-item-title> Mesajlar </v-list-item-title>
             </v-list-item>
+
             <v-list-item @click="$router.push('/dashboard')">
-              <v-list-item-title> Takımlar </v-list-item-title>
+              <v-icon left> mdi-face-recognition</v-icon>
+              <v-list-item-title> Profil </v-list-item-title>
             </v-list-item>
 
             <v-list-item @click="doLogout()">
+              <v-icon left>mdi-logout</v-icon>
+
               <v-list-item-title>Çıkış</v-list-item-title>
             </v-list-item>
           </v-list>

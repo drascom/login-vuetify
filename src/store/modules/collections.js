@@ -8,6 +8,7 @@ export default {
         teammember: [],
         cities: [],
         requests: [],
-        cases: []
+        cases: [],
+        messages: []
     }
 }

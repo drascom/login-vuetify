@@ -1,0 +1,7 @@
+{
+  "name": "dadnetwork",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue"
+}

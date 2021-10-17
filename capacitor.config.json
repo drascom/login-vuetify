@@ -1,0 +1,7 @@
+{
+    "appId": "dadnetwork",
+    "appName": "DAD Network",
+    "webDir": "dad",
+    "npmClient": "npm",
+    "bundledWebRuntime": false
+}

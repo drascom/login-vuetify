@@ -9,7 +9,8 @@ export default {
       members: (state) => state.collections.members,
       teams: (state) => state.collections.teams,
       cities: (state) => state.collections.cities,
-      teammember: (state) => state.collections.teammember
+      teammember: (state) => state.collections.teammember,
+      user: (state) => state.memberData
     })
   },
   methods: {
@@ -60,6 +61,17 @@ export default {
         parent: "collections",
         child: "requests",
         data: ""
+      })
+    }
+    if (!this.messages || this.messages.length <= 0) {
+      await this.getAllItems({
+        parent: "collections",
+        child: "messages",
+        data: {
+          filter: {
+            $or: [{ receiver: this.user._id }, { sender: this.user._id }]
+          }
+        }
       })
     }
   }
