@@ -14,6 +14,7 @@
       </v-btn>
     </v-toolbar>
     <requestList
+    class="pt-2"
       v-if="homeSubPage == 1"
       :new="true"
       title="Benim İsteklerim"
@@ -44,11 +45,25 @@
             </v-list-item-content>
           </template>
 
-          <v-list-item v-for="member in team.linked" :key="member._id" link>
+          <v-list-item
+            v-for="member in sortMembers(team.linked)"
+            :key="member._id"
+            link
+          >
             <v-list-item-icon>
-              <v-icon>mdi-label</v-icon>
+              <v-icon v-if="formatDate(member.time)" color="green">
+                mdi-wifi
+              </v-icon>
+              <v-icon v-else color="grey"> mdi-wifi-off </v-icon>
             </v-list-item-icon>
-            <v-list-item-title v-text="member.display"></v-list-item-title>
+            <v-list-item-title
+              :class="formatDate(member.time) ? 'green--text' : ''"
+            >
+              {{ member.display }}
+              <span v-if="!formatDate(member.time)">
+                ({{ $moment(member.time * 1000).fromNow() }})
+              </span></v-list-item-title
+            >
           </v-list-item>
         </v-list-group>
       </v-list-group>
@@ -65,9 +80,19 @@ export default {
     requestList: () => import("./Requests.vue"),
     messages: () => import("@/components/myMessages.vue")
   },
-  data() {
-    return {}
-  }
+  methods: {
+    formatDate(date) {
+      let diff = this.$moment.unix(date).diff(this.$moment.fromNow, "minutes")
+      diff = 0 - diff
+      return diff < 2
+    },
+    sortMembers(members) {
+      return members.slice().sort((a, b) => {
+        return b.time - a.time
+      })
+    }
+  },
+  mounted() {}
 }
 </script>
 

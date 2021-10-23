@@ -70,7 +70,8 @@ export default {
         data: {
           filter: {
             $or: [{ receiver: this.user._id }, { sender: this.user._id }]
-          }
+          },
+          sort: { _created: -1 }
         }
       })
     }

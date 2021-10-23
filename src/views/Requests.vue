@@ -1,224 +1,249 @@
 <template>
-  <div>
+  <v-main class="overflow-hidden">
     <v-dialog v-model="newForm" fullscreen persistent>
       <form-component
         :isMember="true"
         @close-form="closeDialog"
       ></form-component>
     </v-dialog>
-    <v-navigation-drawer width="100%" app v-model="showMessages" right>
-      <message-component :_id="activeItem" v-if="showMessages">
-        <template v-slot:button>
-          <v-btn class="mt-n2 mr-6" icon @click="showMessages = false">
-            <v-icon>mdi-arrow-left</v-icon>
+    <v-dialog
+      transition="dialog-bottom-transition"
+      fullscreen
+      v-model="activeItem"
+    >
+      <v-card>
+        <v-toolbar dark dense color="primary">
+          <v-btn icon dark @click="activeItem = ''">
+            <v-icon>mdi-close</v-icon>
           </v-btn>
-        </template>
-      </message-component>
-    </v-navigation-drawer>
-    <v-list color="transparent" class="px-0" dense subheader>
-      <v-subheader>
-        {{ title }}<v-spacer></v-spacer>
-        <v-btn color="red" dark small @click="newForm = true" v-if="isNew">
-          İstek Oluştur
-        </v-btn>
-      </v-subheader>
-      <v-list-item-group
-        dense
-        v-if="items && items.length > 0"
-        v-model="selectedMenu"
+          <v-toolbar-title>Detaylar</v-toolbar-title>
+          <v-spacer></v-spacer>
+        </v-toolbar>
+        <v-container fill-height v-if="selectedRequest">
+          <v-layout row>
+            <v-flex xs12 sm6 class="mx-auto px-2">
+              <v-card shaped class="elevation-6 ma-2">
+                <v-list>
+                  <v-subheader>
+                    <v-container fluid class="pa-0">
+                      <v-card flat>
+                        <v-layout row wrap justify-space-between>
+                          <v-btn text small
+                            ><v-icon>local_phone</v-icon>Ara</v-btn
+                          >
+
+                          <v-btn text small
+                            ><v-icon>open_in_new</v-icon>Whatsapp</v-btn
+                          >
+
+                          <v-btn text small
+                            ><v-icon>mdi-dots-vertical</v-icon>
+                          </v-btn>
+                        </v-layout>
+                      </v-card>
+                    </v-container>
+                  </v-subheader>
+                </v-list>
+                <v-list class="transparent">
+                  <v-list-item>
+                    <v-list-item-title> Doktor </v-list-item-title>
+                    <v-list-item-subtitle class="text-right">
+                      {{
+                        selectedRequest.member_name
+                          ? getMember(selectedRequest.member_name._id).name
+                          : selectedRequest.applicant_name
+                      }}
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                  <v-list-item>
+                    <v-list-item-title> Telefon </v-list-item-title>
+                    <v-list-item-subtitle class="text-right">
+                      {{
+                        selectedRequest.member_name
+                          ? getMember(selectedRequest.member_name._id).phone
+                          : selectedRequest.phone
+                      }}
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                  <v-list-item>
+                    <v-list-item-title> Yakınlık </v-list-item-title>
+                    <v-list-item-subtitle class="text-right">
+                      {{ selectedRequest.kinship }}
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                  <v-list-item>
+                    <v-list-item-title> Hasta Adı </v-list-item-title>
+                    <v-list-item-subtitle class="text-right">
+                      {{ selectedRequest.patient_name }}
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                  <v-list-item>
+                    <v-list-item-title>Olay Bilgisi </v-list-item-title>
+                  </v-list-item>
+                  <p class="ml-6 mr-3">{{ selectedRequest.problem }}</p>
+                </v-list>
+                <template>
+                  <v-chip
+                    x-small
+                    v-if="
+                      selectedRequest.linked &&
+                        selectedRequest.linked.length == 1
+                    "
+                  >
+                    {{ selectedRequest.linked[0].member.display }}
+                  </v-chip>
+                  <v-chip
+                    small
+                    v-if="
+                      selectedRequest.linked &&
+                        selectedRequest.linked.length > 1
+                    "
+                  >
+                    <v-avatar size="5" left color="grey" class="white--text">
+                      {{ selectedRequest.linked.length }}
+                    </v-avatar>
+                    Gönüllü
+                  </v-chip>
+                </template>
+              </v-card>
+            </v-flex>
+            <v-flex xs12 sm6 class=" mx-auto">
+              <v-card  class="elevation-6 ma-2">
+              <message-component :_id="selectedRequest._id">
+                <template v-slot:button> </template>
+              </message-component>
+              </v-card>
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-card>
+    </v-dialog>
+    <v-container fluid grid-list-md>
+      <v-item-group
+        v-model="selectedRequest"
         active-class="border"
         color="indigo"
-        class="listbox px-2"
       >
-        <v-card flat tile v-for="item in items" :key="item._id" class="my-2  ">
-          <v-list-item
-            :two-line="$vuetify.breakpoint.xs"
-            v-ripple
-            class="elevation-4"
-            :class="{ active: item._id === activeItem }"
-            @click="setActive(item._id)"
-            v-if="!hideRequest(item)"
+        <v-layout row wrap>
+          <v-flex
+            xs12
+            sm6
+            md4
+            lg3
+            v-for="item in items"
+            :key="item._id"
+            class="pa-2"
           >
-            <v-list-item-avatar size="50">
-              <v-btn
-                x-small
-                outlined
-                :color="JSON.parse(item.urgency).color"
-                class="mx-1"
+            <v-item>
+              <v-card
+             
+                :color="
+                  activeItem == item._id ? 'grey lighten-1' : 'grey lighten-3'
+                "
+                class="mx-auto"
+                :class="{ active: item._id === activeItem }"
+                @click="setActive(item)"
               >
-                {{ JSON.parse(item.urgency).title }}
-              </v-btn>
-            </v-list-item-avatar>
-            <v-list-item-content>
-              <v-list-item-subtitle>
-                <v-icon small color="blue">mdi-arrow-right</v-icon>
-                {{ item.first_city.display }}
-              </v-list-item-subtitle>
-              <v-list-item-subtitle class="grey--text">
-                Başvuran:
-                {{
-                  item.member_name
-                    ? item.member_name.display
-                    : item.applicant_name
-                }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-
-            <v-list-item-action-text>
-              <v-chip
-                x-small
-                :color="statusColor[item.status]"
-                outlined
-                v-if="item.published"
-              >
-                {{ statusCode[item.status] }}
-              </v-chip>
-              <v-chip x-small color="red" outlined v-else>
-                SILINDI
-              </v-chip>
-            </v-list-item-action-text>
-            <template>
-              <v-chip x-small v-if="item.linked && item.linked.length == 1">
-                {{ item.linked[0].member.display }}
-              </v-chip>
-              <v-chip small v-if="item.linked && item.linked.length > 1">
-                <v-avatar size="5" left color="grey" class="white--text">
-                  {{ item.linked.length }}
-                </v-avatar>
-                Gönüllü
-              </v-chip>
-            </template>
-          </v-list-item>
-          <v-slide-y-transition hide-on-leave>
-            <v-card
-              flat
-              tile
-              class="pa-2 mt-1"
-              v-if="item._id === activeItem"
-              img="https://github-production-user-asset-6210df.s3.amazonaws.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png"
-            >
-              <v-card-text class="px-1">
-                <v-layout row wrap class="ma-1">
-                  <v-flex xs12 sm8 md6>
-                    <div class="d-flex justify-space-between text-left">
-                      <span><b> Doktor : </b></span>
-                      <span> {{ getMember(item.member_name._id).name }}</span>
-                    </div>
-                    <div class="d-flex justify-space-between">
-                      <span> <b> Telefon: </b> </span>
-                      <span>
-                        {{ getMember(item.member_name._id).phone }}
-                      </span>
-                    </div>
-                    <div class="d-flex justify-space-between">
-                      <span> <b> Yakınlık: </b> </span>
-                      <span>
-                        {{ item.kinship }}
-                      </span>
-                    </div>
-                    <div class="d-flex justify-space-between">
-                      <span> <b> Hasta : </b> </span>
-                      <span>
-                        {{ item.patient_info }}
-                      </span>
-                    </div>
-                    <div class="d-flex justify-space-between">
-                      <span> <b> Olay Bilgisi: </b> </span>
-                      <span>
-                        {{ item.problem }}
-                      </span>
-                    </div>
-                  </v-flex>
-                  <v-flex sm4 class="text-right">
-                    <v-chip
-                      class="ma-2"
-                      oulined
-                      color="primary"
-                      pill
-                      @click="setMessages(item)"
+                <v-card-title>
+                  <v-chip outlined :color="JSON.parse(item.urgency).color">
+                    <v-avatar
+                      small
+                      :color="JSON.parse(item.urgency).color"
+                      class="mr-2"
                     >
-                      Mesajları Gör
-                      <v-icon right>
-                        mdi-account-outline
+                      <span class="white--text text-h5">{{
+                        item.member_name
+                          ? avatarName(JSON.parse(item.urgency).title)
+                          : avatarName(JSON.parse(item.urgency).title)
+                      }}</span>
+                    </v-avatar>
+                    {{ JSON.parse(item.urgency).title }}
+                  </v-chip>
+                  <v-spacer></v-spacer>
+                  <v-chip
+                    small
+                    dark
+                    :color="statusColor[item.status]"
+                    v-if="item.published"
+                  >
+                    {{ statusCode[item.status] }}
+                  </v-chip>
+                  <v-chip small color="red" outlined v-else>
+                    SILINDI
+                  </v-chip>
+                </v-card-title>
+                <v-divider></v-divider>
+                <v-card-actions class=" grey--text text-center">
+                  <v-row justify="center">
+                    {{ item.first_city.display }} ->
+                    {{ item.second_city.display }}
+                  </v-row>
+                </v-card-actions>
+                <v-divider></v-divider>
+                <v-card-text
+                  class="text-body-1 font-weight-light"
+                  style="height: 200px;"
+                >
+                  {{ item.problem }}
+                </v-card-text>
+
+                <v-card-actions>
+                  <v-list-item class="grow px-0">
+                    <v-list-item-avatar color="grey darken-3">
+                      <v-img
+                        class="elevation-6"
+                        alt=""
+                        src="https://avataaars.io/?avatarStyle=Transparent&topType=ShortHairShortCurly&accessoriesType=Prescription02&hairColor=Black&facialHairType=Blank&clotheType=Hoodie&clotheColor=White&eyeType=Default&eyebrowType=DefaultNatural&mouthType=Default&skinColor=Light"
+                      ></v-img>
+                    </v-list-item-avatar>
+
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        {{
+                          item.member_name
+                            ? item.member_name.display
+                            : item.applicant_name
+                        }}
+                      </v-list-item-title>
+                    </v-list-item-content>
+                    <v-list-item-action>
+                      {{ item._created | moment("DD, MMM/YY") }}
+                    </v-list-item-action>
+                  </v-list-item>
+                </v-card-actions>
+                <v-divider></v-divider>
+                <v-card-actions>
+                  <v-list-item class="grow">
+                    <v-row align="center" justify="space-between">
+                      <v-icon class="mr-1">
+                        mdi-chat-processing-outline
                       </v-icon>
-                    </v-chip>
-                  </v-flex>
-                </v-layout>
-              </v-card-text>
-
-              <v-divider></v-divider>
-
-              <v-card-actions
-                light
-                class="text-right"
-                v-if="item._id === activeItem"
-              >
-                <v-chip
-                  class="ma-2"
-                  color="red"
-                  outlined
-                  pill
-                  @click="deleteJob(item)"
-                  v-if="showDeleteButton(item)"
-                >
-                  İsteği Sil
-                  <v-icon right>
-                    mdi-account-outline
-                  </v-icon>
-                </v-chip>
-                <v-chip
-                  class="ma-2"
-                  color="blue"
-                  outlined
-                  pill
-                  @click="recoverJob(item)"
-                  v-if="showRecoverButton(item)"
-                >
-                  İsteği Kurtar
-                  <v-icon right>
-                    mdi-account-outline
-                  </v-icon>
-                </v-chip>
-                <v-spacer></v-spacer>
-                <v-chip
-                  class="ma-2"
-                  color="red"
-                  outlined
-                  pill
-                  @click="dismissJob(item)"
-                  v-if="showDismissButton(item)"
-                >
-                  Vazgeç
-                  <v-icon right>
-                    mdi-account-outline
-                  </v-icon>
-                </v-chip>
-                <v-chip
-                  v-else
-                  outlined
-                  class="ma-2"
-                  color="primary"
-                  pill
-                  @click="getJob(item)"
-                >
-                  Gönüllü Ol
-                  <v-icon right>
-                    mdi-account-outline
-                  </v-icon>
-                </v-chip>
-              </v-card-actions>
-            </v-card>
-          </v-slide-y-transition>
-        </v-card>
-      </v-list-item-group>
-      <v-list-item v-else>
-        kayıt bulunamadı
-      </v-list-item>
-    </v-list>
-  </div>
+                      <span class="subheading mr-1">{{
+                        item.messages.length
+                      }}</span>
+                      <span class="mr-1">·</span>
+                      <v-icon class="mr-1">
+                        mdi-share-variant
+                      </v-icon>
+                      <span class="subheading">{{ item.linked.length }}</span>
+                      <span class="text-caption ml-4">
+                        {{ $moment(item._created * 1000).fromNow() }}
+                      </span>
+                    </v-row>
+                  </v-list-item>
+                </v-card-actions>
+              </v-card>
+            </v-item>
+          </v-flex>
+        </v-layout>
+      </v-item-group>
+    </v-container>
+  </v-main>
 </template>
 
 <script>
+/* eslint-disable vue/no-unused-components */
+
 import { mapGetters } from "vuex"
 import { mapActions } from "vuex"
 import helpers from "@/plugins/helper"
@@ -236,7 +261,7 @@ export default {
     return {
       newForm: false,
       showMessages: false,
-      selectedMenu: {},
+      selectedRequest: null,
       activeItem: "",
       statusColor: {
         waiting: "orange",
@@ -310,10 +335,11 @@ export default {
 
     handleClick(item) {
       this.dialog = true
-      this.selectedMenu = item
+      this.selectedRequest = item
     },
-    setActive(id) {
-      this.activeItem = this.activeItem != id ? id : ""
+    setActive(item) {
+      this.activeItem = this.activeItem._id != item._id ? item._id : ""
+      this.selectedRequest = item
     }
   },
   async mounted() {
@@ -327,7 +353,7 @@ export default {
   background-image: url("https://github-production-user-asset-6210df.s3.amazonaws.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png");
   background-position: center;
   background-repeat: repeat;
-  height: 90vh;
+  height: 80vh;
   overflow-y: scroll;
 }
 </style>

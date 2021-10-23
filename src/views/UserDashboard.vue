@@ -53,11 +53,14 @@
       </template>
     </v-toolbar>
     <v-navigation-drawer
-      :width="$vuetify.breakpoint.xs ? '100%' : '40%'"
+      disable-resize-watcher
+      style="overflow: hidden;"
+      :width="$vuetify.breakpoint.xs ? '100%' : '50%'"
       app
       v-model="showUserHome"
       right
     >
+      user dashboard side bar
       <userhome
         :myCity="filteredCity"
         :myRequests="myRequests"
@@ -98,6 +101,7 @@
               </v-list-item-group>
             </v-list>
           </v-sheet>
+          <v-sheet rounded="lg"> </v-sheet>
         </v-col>
         <v-col cols="12" :sm="$vuetify.breakpoint.xs ? '12' : '9'">
           <v-window v-model="selectedMenu" reverse>
@@ -109,17 +113,24 @@
                       <h1 class="display-1 font-weight-bold mb-3">
                         Sayın {{ userProfile.name }} Hoşgeldiniz
                       </h1>
-                      <p class="subheading font-weight-regular">
+                      <p
+                        class="subheading font-weight-regular"
+                        v-if="filteredCity"
+                      >
                         Sistemimizde {{ userProfile.city.display }} şehrinde
                         kayıtlı görünüyorsunuz.<br />
-                        Şehrinizde
-                        {{ filteredTeams.length }} takımda toplam
-                        {{ filteredMembers.length }} kayıtlı üyemiz
-                        bulunmaktadır.<br />
+                        Şehrinizde :
+                        {{ filteredCity[0].teams.length }} takım
+                        {{ filteredMembers.length }} üye vardır. <br />
+                        Son 2 dk içinde online olan
+                        <span class="font-weight-bold red--text">
+                          {{ onlineCityMembers.length }}
+                        </span>
+                        kişi online
                       </p>
                       <v-btn
                         outlined
-                        color="green"
+                        color="indigo"
                         text
                         @click=";(homeSubPage = 2), (subPageTitle = 'Üyeler')"
                       >
@@ -154,9 +165,9 @@
                       rounded="lg"
                       color="grey lighten-2 text-center pa-6 "
                     >
-                      Toplam {{ waiting.length }} bekleyen istek var.
+                      {{ waiting.length }} Bekleyen istek var.
                       <v-btn small color="red" text @click="selectedMenu = 1">
-                        İsteklerimi göster
+                        İstekleri göster
                       </v-btn>
                     </v-card>
                   </v-col>
@@ -170,13 +181,13 @@
                       Toplam {{ myMessages.length }} mesajın var.
                       <v-btn
                         small
-                        color="red"
+                        color="green"
                         text
                         @click="
                           ;(homeSubPage = 3), (subPageTitle = 'Mesajlarım')
                         "
                       >
-                        İsteklerimi göster
+                        Mesajlarımı göster
                       </v-btn>
                     </v-card>
                   </v-col>
@@ -296,6 +307,17 @@ export default {
     filteredMembers() {
       return this.members.filter((member) => {
         return member.city._id == this.userProfile.city._id
+      })
+    },
+    onlineCityMembers() {
+      return this.filteredMembers.filter((member) => {
+        return (
+          0 -
+            this.$moment
+              .unix(member.lastactive)
+              .diff(this.$moment.fromNow, "minutes") <
+          2
+        )
       })
     },
     filteredList() {

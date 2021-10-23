@@ -315,7 +315,7 @@
                   <v-card-text class="white--text mt-4">
                     <h1 class="text-center ma-8">Duyuruları oku !</h1>
                     <h4 class="text-center font-weight-medium mb-4">
-                      Mailini beklerken anasayfada duyuruları okuyablirsin.
+                      Mailini beklerken anasayfada duyuruları okuyabilirsin.
                     </h4>
                   </v-card-text>
                   <div class="text-center  mb-3">
@@ -339,43 +339,51 @@ import helpers from "@/plugins/helper.js"
 import home from "@/views/Home"
 export default {
   name: "Login",
+  props: {
+    window: {
+      type: Number,
+      default: 1
+    }
+  },
   components: {
     home
   },
-  data: () => ({
-    error: "",
-    intro: true,
-    isFormValid: false,
-    isForgetFormValid: false,
-    isNewPasswordValid: false,
-    token: "",
-    step: 6,
-    memberId: "",
-    newPassword: "222222",
-    showPass: true,
-    loginData: {
-      email: "",
-      password: ""
-    },
-    inputRules: [
-      (v) => !!v || "Bu alan gerekli",
-      (v) => (v && v.length >= 6) || "En Az 6 Karakter Giriniz"
-    ],
-    emailRules: [
-      (v) => !!v || "Bu alan gerekli",
-      (v) =>
-        !v ||
-        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) ||
-        "E-mail geçersiz"
-    ],
-    registerData: {
-      name: "",
-      password: "",
-      email: "",
-      role: "uye",
-      published: true
+  data() {
+    return {
+      error: "",
+      intro: true,
+      isFormValid: false,
+      isForgetFormValid: false,
+      isNewPasswordValid: false,
+      token: "",
+      step: this.window,
+      memberId: "",
+      newPassword: "222222",
+      showPass: true,
+      loginData: {
+        email: "",
+        password: ""
+      },
+      inputRules: [
+        (v) => !!v || "Bu alan gerekli",
+        (v) => (v && v.length >= 6) || "En Az 6 Karakter Giriniz"
+      ],
+      emailRules: [
+        (v) => !!v || "Bu alan gerekli",
+        (v) =>
+          !v ||
+          /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) ||
+          "E-mail geçersiz"
+      ],
+      registerData: {
+        name: "",
+        password: "",
+        email: "",
+        role: "uye",
+        published: true
+      }
     }
-  }),
+  },
   computed: {
     isLoggedin() {
       return this.$store.state.isLoggedin

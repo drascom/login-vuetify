@@ -156,5 +156,12 @@ export default {
                     return false
                 }
             )
+    },
+    //member online durumunu günceller
+    updateUserOnlineStatus({ commit }, id) {
+        return api["collections"].updateUserStatus({
+            id: id,
+            token: "7c4301e2281654eda6b1eff9bd00bf"
+        })
     }
 }

@@ -32,6 +32,9 @@ export default {
     },
     uppercase(val) {
         return val.toUpperCase()
+    },
+    avatarName(name) {
+        const regex = /(?<!\p{L}\p{M}*)\p{L}/gu
+        return name ? name.match(regex)[0] : "name"
     }
-
 }

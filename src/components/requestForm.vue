@@ -45,9 +45,9 @@
           </h5>
         </v-card-text>
         <v-card-text class="">
-          <v-form v-model="isFormValid" lazy-validation>
+          <v-form v-model="isFormValid">
             <h4>İstek Amacınız Nedir ?</h4>
-            <v-radio-group v-model="form.urgency" mandatory>
+            <v-radio-group v-model="formData.urgency" mandatory>
               <v-radio label="Acil Durumum var." :value="acil"></v-radio>
               <v-radio label="Destek ihtiyacım var." :value="destek"></v-radio>
               <v-radio label="Bilgi almak istiyorum" :value="bilgi"></v-radio>
@@ -55,10 +55,10 @@
             <tags
               :disabled="firstCityDisabled"
               :multi="false"
-              v-model="form.first_city"
+              v-model="formData.first_city"
               hint=" Şehirinizi  Seçiniz"
               prepend-icon="apartment"
-              :persistent-hint="!form.first_city"
+              :persistent-hint="!formData.first_city"
               chips
               small-chips
               label="Sizin Şehriniz"
@@ -70,10 +70,10 @@
             <tags
               dense
               :multi="false"
-              v-model="form.second_city"
+              v-model="formData.second_city"
               hint="İstek Yapılacak Şehir Seçiniz"
               prepend-icon="apartment"
-              :persistent-hint="!form.second_city"
+              :persistent-hint="!formData.second_city"
               chips
               small-chips
               label="İstek Yapılan Şehir"
@@ -91,7 +91,7 @@
               prepend-icon="local_hospital"
               type="text"
               color="teal accent-3"
-              v-model="form.hospital"
+              v-model="formData.hospital"
             />
             <v-text-field
               label="Hasta Adı"
@@ -101,7 +101,7 @@
               prepend-icon="person"
               type="text"
               color="teal accent-3"
-              v-model="form.patient_name"
+              v-model="formData.patient_name"
             />
             <v-text-field
               label="Yakınlık Derecesi"
@@ -111,7 +111,7 @@
               prepend-icon="person"
               type="text"
               color="teal accent-3"
-              v-model="form.kinship"
+              v-model="formData.kinship"
             />
             <v-textarea
               auto-grow
@@ -125,7 +125,7 @@
               prepend-icon="person"
               type="text"
               color="teal accent-3"
-              v-model="form.problem"
+              v-model="formData.problem"
             />
             <v-text-field
               v-if="!member"
@@ -137,7 +137,7 @@
               autocomplete="new-password"
               type="text"
               color="teal accent-3"
-              v-model="form.applicant_name"
+              v-model="applicant_name"
             />
             <v-text-field
               v-if="!member"
@@ -147,7 +147,7 @@
               prepend-icon="email"
               type="text"
               color="teal accent-3"
-              v-model="form.email"
+              v-model="formData.email"
             />
             <v-text-field
               v-if="!member"
@@ -158,37 +158,55 @@
               prepend-icon="phone"
               type="text"
               color="teal accent-3"
-              v-model="form.phone"
+              v-model="formData.phone"
             />
           </v-form>
         </v-card-text>
         <v-card-actions class="d-flex justify-space-between">
-          <v-btn
-            v-if="!member"
-            :dark="isFormValid"
-            color="orange accent-3"
-            @click="kontrolEt = !kontrolEt"
-            :disabled="!isFormValid"
+          <span
+            class="mx-4"
+            v-if="
+              !isFormValid ||
+                formData.first_city == null ||
+                formData.second_city == null
+            "
           >
-            {{ kontrolEt ? "Değiştir" : "Kontrol Et" }}
-          </v-btn>
-          <span v-if="!isFormValid"> Formunuzda Eksikler var</span>
-          <v-btn
-            v-if="!member"
-            dark
-            color="blue accent-3"
-            @click="onCapture"
-            :disabled="capturing || !kontrolEt"
+            Formunuzda Eksikler var</span
           >
-            {{ capturing ? "Kaydediliyor..." : "Kaydet" }}
-          </v-btn>
           <v-spacer></v-spacer>
           <v-btn
-            :dark="isFormValid"
-            v-if="member"
+            v-if="!member"
+            :dark="
+              isFormValid ||
+                formData.first_city != null ||
+                formData.second_city != null
+            "
             color="blue accent-3"
             @click="saveForm"
-            :disabled="!isFormValid"
+            :disabled="
+              !isFormValid ||
+                formData.first_city == null ||
+                formData.second_city == null
+            "
+          >
+            <v-icon left>mdi-cloud-download</v-icon>
+            {{ capturing ? "Kaydediliyor..." : "INDIR" }}
+          </v-btn>
+
+          <v-btn
+            :dark="
+              isFormValid ||
+                formData.first_city != null ||
+                formData.second_city != null
+            "
+            v-else
+            color="blue accent-3"
+            @click="saveForm"
+            :disabled="
+              !isFormValid ||
+                formData.first_city == null ||
+                formData.second_city == null
+            "
           >
             Kaydet
           </v-btn>
@@ -206,13 +224,13 @@ import { mapActions } from "vuex"
 import tags from "@/components/ui/autocomplete.vue"
 import { mapGetters } from "vuex"
 let initForm = {
+  member_name: {},
   first_city: null,
   second_city: null,
   hospital: "deneme hastanesi",
   patient_name: "deneme hastası",
   kinship: "deneme akrabalık",
   problem: "deneme hastanın sorunu ihtiyacı ulaşılacak kişi vs...",
-  applicant_name: "",
   phone: "123123213",
   email: "aaa@bbbb.com",
   published: true,
@@ -224,30 +242,96 @@ export default {
   components: {
     tags
   },
+
+  props: ["isMember"],
+  computed: {
+    ...mapGetters(["user", "collections"]),
+    member() {
+      return this.isMember
+    },
+    cities() {
+      return this.collections("cities")
+    },
+    firstCityDisabled() {
+      return this.user.role == "uye"
+    }
+  },
   methods: {
     ...mapActions(["getAllItems", "save", "delete"]),
     closeForm() {
-      this.form = {
+      this.formData = {
         ...initForm
       }
       !this.user ? this.$router.push("/") : this.$emit("close-form", true)
       this.$emit("close-form", true)
     },
-    async saveForm() {
-      let result = await this.save({
+    async saveApplicant() {
+      return await this.save({
         parent: "collections",
-        child: "requests",
-        data: this.form
+        child: "members",
+        data: {
+          name: this.applicant_name,
+          email: this.formData.email,
+          phone: this.formData.phone,
+          role: "misafir"
+        }
       })
-      if (result.statusText) {
-        this.$store.commit("snackbar/success", "İstek Kaydedildi.")
-        this.closeForm()
+    },
+    async saveForm() {
+      let error = false
+      if (this.applicant_name) {
+        let result = await this.saveApplicant()
+        error = !result.statusText ? result : false
+        if (error == "Email adresi zaten kayıtlı") {
+          const res = await this.$confirm(
+            "Bu mail adresi zaten kayıtlı.<br />" +
+              "Lütfen giriş yaparak istek oluşturunuz.. ?",
+            {
+              title: "Kayıtlı Üye",
+              buttonTrueText: "Devam Et",
+              buttonFalseText: "Email değiştir",
+              color: "orange"
+            }
+          )
+          if (res) {
+            this.$router.push({ name: "Login", params: { window: "1" } })
+          }
+        } else {
+          this.formData.member_name = {
+            _id: result.data._id,
+            link: "members",
+            display: result.data.name
+          }
+        }
+      }
+      if (this.user) {
+        this.formData.member_name = {
+          _id: this.user._id,
+          link: "members",
+          display: this.user.name
+        }
+      }
+      if (this.user.role == "uye") {
+        this.formData.first_city = this.user.city
+      }
+      if (!error) {
+        let result = await this.save({
+          parent: "collections",
+          child: "requests",
+          data: this.formData
+        })
+        if (result.statusText) {
+          this.$store.commit("snackbar/success", "İstek Kaydedildi.")
+          await this.onCapture()
+          this.closeForm()
+        } else {
+          this.$store.commit("snackbar/error", `istek kaydedilemedi.${result}`)
+        }
       } else {
-        this.$store.commit("snackbar/error", "Mesaj Gönderilemedi.")
+        this.$store.commit("snackbar/error", `kullanıcı kaydedilemedi.${error}`)
       }
     },
     onCapture() {
-      this.saveForm()
       this.capturing = true
       htmlToImage
         .toBlob(document.getElementById("capture"))
@@ -266,48 +350,13 @@ export default {
       this.capturing = false
     }
   },
-  props: ["isMember"],
-  computed: {
-    ...mapGetters(["user", "collections"]),
-    member() {
-      return this.isMember
-    },
-    cities() {
-      return this.collections("cities")
-    },
-    firstCityDisabled() {
-      return this.user.role == "uye"
-    },
-    form: {
-      get() {
-        if (this.user) {
-          let newForm = {
-            ...initForm,
-            member_name: {
-              _id: this.user._id,
-              link: "members",
-              display: this.user.name
-            }
-          }
-          if (this.user.role == "uye") {
-            newForm.first_city = this.user.city
-          }
-          return newForm
-        }
-        return {
-          ...initForm
-        }
-      },
-      set(value) {
-        return value
-      }
-    }
-  },
   data: () => ({
     error: "",
     acil: '{ "title": "Acil", "color": "red" }',
     bilgi: '{ "title": "Bilgi", "color": "orange" }',
     destek: '{ "title": "Destek", "color": "blue" }',
+    applicant_name: "",
+    formData: {},
     intro: true,
     capturing: false,
     isFormValid: false,
@@ -322,7 +371,18 @@ export default {
         "E-mail geçersiz"
     ]
   }),
-  mounted() {}
+  async mounted() {
+    this.formData = {
+      ...initForm
+    }
+    await this.getAllItems({
+      parent: "collections",
+      child: "cities",
+      data: {
+        sort: { name: 1 }
+      }
+    })
+  }
 }
 </script>
 

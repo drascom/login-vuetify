@@ -109,14 +109,7 @@
           <template v-slot:default="{ open }">
             <v-layout row wrap align-center>
               <v-flex xs8 sm5 id="name">
-                <v-btn
-                  text
-                  v-ripple="{ class: 'primary--text' }"
-                  class="pl-0"
-                  @click="
-                    $router.push({ name: 'City', query: { id: city._id } })
-                  "
-                >
+                <v-btn text v-ripple="{ class: 'primary--text' }" class="pl-0">
                   <v-icon left>
                     drag_indicator
                   </v-icon>
@@ -174,7 +167,7 @@
           <v-list dense color="transparent" class="pr-4">
             <v-list-item v-for="team in city.teams" :key="team._id">
               <v-list-item-subtitle class="text-subtitle-2">
-                {{ team.name }}
+                {{ team.name || team.display }}
                 <span class="grey--text ml-4 ">
                   {{ team.linked ? team.linked.length : "0" }} Üye
                 </span>
@@ -403,7 +396,7 @@ export default {
             let result = await this.save({
               parent: "collections",
               child: "teammember",
-              data: { member, team }
+              data: { member, team, city: this.city }
             })
           })
         )

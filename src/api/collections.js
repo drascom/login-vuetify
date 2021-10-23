@@ -36,6 +36,13 @@ export default {
             .then((res) => {
                 return res
             })
+    },
+    async updateUserStatus(payload) {
+        return api
+            .post(`${END_POINT}/touch`, payload)
+            .then((res) => {
+                return res
+            })
     }
     // async delete(payload) {
     //     console.log("api delete payload", payload)
