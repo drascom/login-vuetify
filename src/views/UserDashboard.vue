@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class=" grey lighten-1 pa-0 pt-1">
+  <v-container fluid class=" grey lighten-1 pa-0">
     <v-toolbar v-show="$vuetify.breakpoint.smAndUp">
       <v-toolbar-title class="py-0 ">
         İstekler Sayfası
@@ -60,7 +60,6 @@
       v-model="showUserHome"
       right
     >
-      user dashboard side bar
       <userhome
         :myCity="filteredCity"
         :myRequests="myRequests"
@@ -195,7 +194,7 @@
               </v-container>
             </v-window-item>
             <v-window-item :value="1">
-              <v-sheet min-height="70vh" rounded="lg" color="grey lighten-2">
+              <v-sheet min-height="79vh" rounded="lg" color="grey lighten-2">
                 <requestList
                   :search="search"
                   title="Bekleyen İstekler"
@@ -409,6 +408,7 @@ export default {
       this.updateRequestStatus(item, status)
     },
     async setJob(event) {
+      // if(event._id)
       this.jobForm = {
         request: {
           _id: event._id,

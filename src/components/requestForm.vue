@@ -1,5 +1,11 @@
 <template>
   <v-card flat>
+    <v-dialog fullscreen v-model="register">
+      <register
+        :formData="formData"
+        :applicant_name="applicant_name"
+      ></register>
+    </v-dialog>
     <v-toolbar color="grey lighten-3" dark extended flat>
       <v-spacer></v-spacer>
       <v-icon v-if="member" color="red" class="mt-n5" @click="closeForm()">
@@ -31,14 +37,22 @@
       </v-toolbar>
 
       <v-divider></v-divider>
-
-      <v-card flat tile ref="capture" id="capture">
+      <v-card v-if="outro && !member">
+        <v-card-text>
+          <h5>
+            Formunuz oluşturuldu. <br />
+            Resim olarak indirdiğiniz dosyayı whatsapp gruplarına
+            gönderebilirsiniz.
+          </h5>
+        </v-card-text>
+        <v-card-actions class="d-flex justify-center">
+          <v-btn to="/" color="primary"> Anasayfa</v-btn>
+        </v-card-actions>
+      </v-card>
+      <v-card v-else flat tile ref="capture" id="capture">
         <v-card-text v-show="!kontrolEt" v-if="!member">
           <h5>
             Bu form hiçbir yere kaydedilmez,
-            <br />
-            KONTROL ET butonuna bastığınızda formunuzu resim formatında
-            görüntüler
             <br />
             KAYDET butonuna bastığınızda resim dosyasını indirip ilgili whatsapp
             grubuna göndermenizi sağlar.
@@ -68,7 +82,6 @@
               :menu-props="{ closeOnContentClick: true }"
             ></tags>
             <tags
-              dense
               :multi="false"
               v-model="formData.second_city"
               hint="İstek Yapılacak Şehir Seçiniz"
@@ -230,7 +243,8 @@ let initForm = {
   hospital: "deneme hastanesi",
   patient_name: "deneme hastası",
   kinship: "deneme akrabalık",
-  problem: "deneme hastanın sorunu ihtiyacı ulaşılacak kişi vs...",
+  problem:
+    "deneme hastanın sorunu ihtiyacı ulaşılacak kişi vs yazılacak.Yazı oldukça uzun olrsa nasıl ayarlanacağını görmek için gereksi metinler ekliyorum.",
   phone: "123123213",
   email: "aaa@bbbb.com",
   published: true,
@@ -240,14 +254,15 @@ let initForm = {
 export default {
   name: "requestForm",
   components: {
-    tags
+    tags,
+    register: () => import("@/components/registerOnly.vue")
   },
 
   props: ["isMember"],
   computed: {
     ...mapGetters(["user", "collections"]),
     member() {
-      return this.isMember
+      return this.isMember || false
     },
     cities() {
       return this.collections("cities")
@@ -259,9 +274,6 @@ export default {
   methods: {
     ...mapActions(["getAllItems", "save", "delete"]),
     closeForm() {
-      this.formData = {
-        ...initForm
-      }
       !this.user ? this.$router.push("/") : this.$emit("close-form", true)
       this.$emit("close-form", true)
     },
@@ -273,28 +285,30 @@ export default {
           name: this.applicant_name,
           email: this.formData.email,
           phone: this.formData.phone,
-          role: "misafir"
+          role: "misafir",
+          city: this.formData.first_city
         }
       })
     },
     async saveForm() {
       let error = false
+      //üye olmadan form dolduranlar için
       if (this.applicant_name) {
         let result = await this.saveApplicant()
         error = !result.statusText ? result : false
         if (error == "Email adresi zaten kayıtlı") {
           const res = await this.$confirm(
-            "Bu mail adresi zaten kayıtlı.<br />" +
-              "Lütfen giriş yaparak istek oluşturunuz.. ?",
+            "Email adresiniz kayıtlı.<br />" +
+              "Dilerseniz üyeliğinizi tamamlayabilirsiniz.",
             {
               title: "Kayıtlı Üye",
-              buttonTrueText: "Devam Et",
-              buttonFalseText: "Email değiştir",
+              buttonTrueText: "Üyeliği tamamla",
+              buttonFalseText: "Sadece Indir",
               color: "orange"
             }
           )
           if (res) {
-            this.$router.push({ name: "Login", params: { window: "1" } })
+            this.register = true
           }
         } else {
           this.formData.member_name = {
@@ -304,34 +318,38 @@ export default {
           }
         }
       }
-      if (this.user) {
-        this.formData.member_name = {
-          _id: this.user._id,
-          link: "members",
-          display: this.user.name
-        }
-      }
-      if (this.user.role == "uye") {
-        this.formData.first_city = this.user.city
-      }
-      if (!error) {
-        let result = await this.save({
-          parent: "collections",
-          child: "requests",
-          data: this.formData
-        })
-        if (result.statusText) {
+
+      let result = await this.save({
+        parent: "collections",
+        child: "requests",
+        data: this.formData
+      })
+      if (result.statusText) {
+        if (this.user) {
           this.$store.commit("snackbar/success", "İstek Kaydedildi.")
-          await this.onCapture()
-          this.closeForm()
-        } else {
-          this.$store.commit("snackbar/error", `istek kaydedilemedi.${result}`)
+          const res = await this.$confirm(
+            "İsteğiniz oluşturuldu.<br />" +
+              "Bu isteği resim olarak indirmek istermisiniz..",
+            {
+              title: "Kaydedildi",
+              buttonTrueText: "Indir",
+              buttonFalseText: "Kapat",
+              color: "green"
+            }
+          )
+          if (res) {
+            await this.onCapture()
+          } else {
+            this.closeForm()
+          }
         }
+        this.outro = true
       } else {
-        this.$store.commit("snackbar/error", `kullanıcı kaydedilemedi.${error}`)
+        this.$store.commit("snackbar/error", `İstek kaydedilemedi.${result}`)
       }
     },
     onCapture() {
+      console.log("capture başladı")
       this.capturing = true
       htmlToImage
         .toBlob(document.getElementById("capture"))
@@ -348,6 +366,7 @@ export default {
           ])
         })
       this.capturing = false
+      this.outro = true
     }
   },
   data: () => ({
@@ -358,6 +377,8 @@ export default {
     applicant_name: "",
     formData: {},
     intro: true,
+    outro: false,
+    register: false,
     capturing: false,
     isFormValid: false,
     kontrolEt: false,
@@ -375,6 +396,15 @@ export default {
     this.formData = {
       ...initForm
     }
+    if (this.user) {
+      this.formData.member_name = {
+        _id: this.user._id,
+        link: "members",
+        display: this.user.name
+      }
+      this.formData.first_city = this.user.city
+    }
+
     await this.getAllItems({
       parent: "collections",
       child: "cities",
@@ -382,6 +412,11 @@ export default {
         sort: { name: 1 }
       }
     })
+  },
+  beforeDestroy() {
+    this.formData = {
+      ...initForm
+    }
   }
 }
 </script>

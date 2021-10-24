@@ -36,5 +36,12 @@ export default {
     avatarName(name) {
         const regex = /(?<!\p{L}\p{M}*)\p{L}/gu
         return name ? name.match(regex)[0] : "name"
+    },
+    truncate: function(text, length, suffix) {
+        if (text.length > length) {
+            return text.substring(0, length) + suffix
+        } else {
+            return text
+        }
     }
 }

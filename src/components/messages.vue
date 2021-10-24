@@ -6,6 +6,16 @@
     >
       <v-row align="center" justify="center">
         <v-col cols="12" class="flex-grow-1">
+          <v-toolbar color="transparent">
+            <v-subheader>
+              Mesajlar
+            </v-subheader>
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+              <v-icon @click="refresh()">mdi-reload</v-icon></v-toolbar-items
+            >
+          </v-toolbar>
+
           <v-card class="flex-grow-0 transparent scroll" height="77vh">
             <v-card-text>
               <v-row class="fill-height" align="end">
@@ -26,7 +36,9 @@
                       {{ message.sender.display }}
                     </span>
                     <br />
-                    <span class="chat__title font-weight-bold"> {{ message.content }}</span>
+                    <span class="chat__title font-weight-bold">
+                      {{ message.content }}</span
+                    >
                     <div class="d-flex justify-end ">
                       <v-chip small class="chat__timestamp">
                         {{ formatDate(message._modified) }}
@@ -115,6 +127,13 @@ export default {
       let formatDate = date ? this.$moment(date * 1000) : ""
       return this.$moment(formatDate).fromNow()
     },
+    async refresh() {
+      await this.getAllItems({
+        parent: "collections",
+        child: "requests",
+        data: ""
+      })
+    },
     async submit() {
       let result = await this.save({
         parent: "collections",
@@ -122,16 +141,12 @@ export default {
         data: this.form
       })
       if (result.statusText) {
-        await this.getAllItems({
-          parent: "collections",
-          child: "requests",
-          data: ""
-        })
+        this.refresh()
+        this.$emit("message-sent", true)
       } else {
         this.$store.commit("snackbar/error", "Mesaj Gönderilemedi.")
       }
       this.content = ""
-      this.scrollToEnd()
     }
   },
   mounted() {}

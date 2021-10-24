@@ -7,16 +7,16 @@
         >
       </v-flex>
       <v-flex xs12 sm3>
-        <router-link :to="{ name: 'Duyurular' }">
+        <router-link :to="{ name: 'UserDashboard' }">
           <v-card dark color="grey darken-2" class="white--text ma-0">
             <v-btn icon>
               <v-icon>mdi-bullhorn-outline</v-icon>
             </v-btn>
 
             <v-card-text class="text-center">
-              <p class="headline">Duyurular</p>
+              <p class="headline">Kullanıcı Giriş Sayfası</p>
 
-              <p class="body-2">Aktif Duyuru : {{ countDuyurular }}</p>
+              <p class="body-2"></p>
             </v-card-text>
           </v-card>
         </router-link>
@@ -70,41 +70,7 @@
           </v-card>
         </router-link>
       </v-flex>
-      <v-flex xs12>
-        <router-link :to="{ name: 'Requests' }">
-          <v-layout row wrap>
-            <v-flex xs12 sm3>
-              <v-alert border="left" icon="mdi-plus" outlined type="info">
-                Toplam 45 durum bildirildi
-              </v-alert>
-            </v-flex>
-            <v-flex xs12 sm4>
-              <v-alert border="left" icon="mdi-check" outlined type="success">
-                Toplam 25 durum çözüldü.Tebrikler
-              </v-alert>
-            </v-flex>
-            <v-flex xs12 sm4>
-              <v-alert border="left" icon="mdi-cancel" outlined type="error">
-                Toplam 20 durum bekliyor.
-              </v-alert>
-            </v-flex>
-            <v-flex xs12>
-              <router-link :to="{ name: 'UserDashboard' }">
-                <v-card dark color="grey" class="ma-0">
-                  <v-btn icon>
-                    <v-icon>mdi-account</v-icon>
-                  </v-btn>
-
-                  <v-card-text class="text-left">
-                    <p class="headline">Kullanıcı Sayfası</p>
-                    <pre> {{ user }} </pre>
-                  </v-card-text>
-                </v-card>
-              </router-link>
-            </v-flex>
-          </v-layout>
-        </router-link>
-      </v-flex>
+      <v-flex xs12> </v-flex>
     </v-layout>
   </v-container>
 </template>

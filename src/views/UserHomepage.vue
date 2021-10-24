@@ -1,24 +1,30 @@
 <template>
   <div>
+    <v-dialog v-model="newForm" fullscreen persistent>
+      <form-component
+        :isMember="true"
+        @close-form="closeDialog"
+      ></form-component>
+    </v-dialog>
     <v-toolbar>
       <slot name="button"></slot>
-
       <v-toolbar-title>
         <slot name="title"></slot>
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
 
-      <v-btn icon class="hidden-xs-only">
-        <v-icon>mdi-printer</v-icon>
+      <v-btn color="red" dark small @click="newForm = true">
+        İstek Oluştur
       </v-btn>
     </v-toolbar>
     <requestList
-    class="pt-2"
+      class="pt-2"
       v-if="homeSubPage == 1"
       :new="true"
       title="Benim İsteklerim"
       :items="myRequests"
+      :gridType="false"
     />
     <v-list dense v-if="homeSubPage == 2">
       <v-list-group
@@ -76,11 +82,20 @@
 export default {
   name: "userhome",
   props: ["myRequests", "myMessages", "myCity", "userProfile", "homeSubPage"],
+  data() {
+    return {
+      newForm: false
+    }
+  },
   components: {
     requestList: () => import("./Requests.vue"),
-    messages: () => import("@/components/myMessages.vue")
+    messages: () => import("@/components/myMessages.vue"),
+    formComponent: () => import("@/components/requestForm")
   },
   methods: {
+    closeDialog() {
+      this.newForm = null
+    },
     formatDate(date) {
       let diff = this.$moment.unix(date).diff(this.$moment.fromNow, "minutes")
       diff = 0 - diff
